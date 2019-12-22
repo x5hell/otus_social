@@ -1,0 +1,71 @@
+{{define "title"}}Регистрация{{end}}
+
+{{define "content"}}
+    <form id="registration-form" method="POST" action="/registration" class="container">
+        <h1>Регистрация</h1>
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <label class="col-sm-4" for="login">Логин:*</label>
+            <input class="col-sm-4" id="login" type="text" name="login"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="password1">Пароль:*</label>
+            <input class="col-sm-4" id="password1" type="password" name="password1"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="password2">Повторите пароль:*</label>
+            <input class="col-sm-4" id="password2" type="password" name="password2"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="first-name">Имя:*</label>
+            <input class="col-sm-4" id="first-name" type="text" name="first-name"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="last-name">Фамилия:*</label>
+            <input class="col-sm-4" id="last-name" type="text" name="last-name"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="age">Возраст:*</label>
+            <input class="col-sm-4" id="age" type="number" min="1" max="120" name="age"/>
+        </p>
+        <p class="row">
+            <span class="col-sm-4">Пол:</span>
+            <span class="col-sm-4">
+                <label for="male">Мужской:</label>
+                <input id="male" type="radio" value="1" name="sex"/>
+                <label for="female">Женский:</label>
+                <input id="female" type="radio" value="0" name="sex"/>
+            </span>
+
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="interests">Интересы:</label>
+            <select class="col-sm-4" id="interests">
+                <option value="сross-stitch">вышивание крестиком</option>
+                <option value="krav-maga">крав-мага</option>
+                <option value="game-of-go">игра в го</option>
+                <option value="boys-choir">хор мальчиков</option>
+                <option value="other">иное</option>
+            </select>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="city">Город:</label>
+            <select class="col-sm-4" id="city">
+                <option value="neelovo">Неелово</option>
+                <option value="gorelovo">Горелово</option>
+                <option value="neurozhajka">Неурожайка</option>
+                <option value="kosyakovka">Косяковка</option>
+                <option value="kosyakovka">Козявкино</option>
+            </select>
+        </p>
+        <i class="ri">* Поля обязательные для заполнения</i>
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <button type="submit" class="btn btn-primary col-sm-8">Зарегистрировать</button>
+        </p>
+    </form>
+{{end}}
+
+{{define "custom-scripts"}}
+    <script src="/src/staticatic/js/registration.js"></script>
+{{end}}
