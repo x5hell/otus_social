@@ -1,0 +1,30 @@
+{{define "title"}}Профили пользователей{{end}}
+
+{{define "content"}}
+    {{range .Users}}
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <b class="col-sm-4">Имя:*</b>
+            <span class="col-sm-4"{{.FirstName}}></span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Фамилия:*</b>
+            <span class="col-sm-4">{{.LastName}}</span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Возраст:*</b>
+            <span class="col-sm-4">{{.Age}}</span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Пол:</b>
+            <span class="col-sm-4">{{.Sex}}</span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Город:</b>
+            <span class="col-sm-4">{{.CityId}}</span>
+        </p>
+        <div class="dropdown-divider col-sm-8"></div>
+    {{end}}
+{{end}}
+
+{{define "custom-scripts"}}{{end}}

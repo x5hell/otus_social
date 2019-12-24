@@ -6,8 +6,8 @@ import (
 	"net/http"
 )
 
-func RegistrationForm(response http.ResponseWriter, request *http.Request)  {
-	htmlTemplate, err := template.OpenGuestTemplate("registration-form.html")
+func UserProfileList(response http.ResponseWriter, request *http.Request)  {
+	htmlTemplate, err := template.OpenGuestTemplate("user-profile-list.html")
 	if err != nil {
 		fmt.Fprintf(response, "error: %v", err)
 	} else {
