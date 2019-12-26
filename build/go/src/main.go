@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const AppPort  = "8001"
+const AppPort = "8001"
 
 func main()  {
 	fs := http.FileServer(http.Dir("static"))
