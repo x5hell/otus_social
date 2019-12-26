@@ -4,7 +4,7 @@ social network blank
 ## run web app
 
 ```bash
-./run.sh
+./start.sh
 ```
 
 ## open web app

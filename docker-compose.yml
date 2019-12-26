@@ -3,11 +3,13 @@ volumes:
   init_sql:
 services:
   web:
+    container_name: social_go
     build: ./build/go
     ports:
       - "8000:8001"
     env_file: .env
   db:
+    container_name: social_mysql
     build: ./build/mysql
     restart: always
     ports:

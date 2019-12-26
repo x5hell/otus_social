@@ -12,34 +12,51 @@ func GetLastUsers(limit int) (userList map[int]model.User, err error) {
 		"SELECT u.id, u.login, u.password, u.first_name, u.last_name, u.sex, c.name " +
 			"FROM user u " +
 			"LEFT JOIN city c ON (u.city_id = c.id) " +
-			"ORDER BY id DESC" +
+			"ORDER BY id DESC " +
 			"LIMIT ?", limit)
 	if err != nil {
 		return nil, err
 	}
 	userList = make(map[int]model.User)
 	for rows.Next() {
-		user := model.User{}
+		user := model.User{InterestList: []model.Interest{}}
 		err = rows.Scan(&user.ID, &user.Login, &user.Password, &user.FirstName, &user.LastName, &user.Sex, &user.City)
 		if err != nil {
 			return userList, err
 		}
 		userList[user.ID] = user
 	}
-	return fillUserInterests(userList)
+	userList, err = fillUserInterests(userList)
+	_ = database.Close()
+	return userList, err
 }
 
 func fillUserInterests(userList map[int]model.User) (userListWithInterest map[int]model.User, err error) {
 	var userIdList []int
 	var userIdPlaceList []string
-	for userId, user := range userList {
-		userIdList = append(userIdList, user.ID)
+	for userId, _ := range userList {
+		userIdList = append(userIdList, userId)
 		userIdPlaceList = append(userIdPlaceList, "?")
 	}
 	userIdListQuery := strings.Join(userIdPlaceList, ",")
 	sqlQuery := fmt.Sprintf(
-		"SELECT ui.user_id, i.name " +
+		"SELECT ui.user_id, i.name, i.id " +
 		"FROM user_interest ui " +
-		"INNER JOIN interest i ON (ui.interest_id = i.id) " +
-		"WHERE ui.user_id IN"
+		"INNER JOIN interestName i ON (ui.interest_id = i.id) " +
+		"WHERE ui.user_id IN (%s)", userIdListQuery)
+	rows, err := database.Query(sqlQuery)
+	if err != nil {
+		return userListWithInterest, err
+	}
+	var userId, interestId int
+	var interestName string
+	for rows.Next() {
+		err = rows.Scan(&userId, &interestName, &interestId)
+		if err != nil {
+			return userList, err
+		}
+		user := userList[userId]
+		user.InterestList = append(user.InterestList, model.Interest{ID:interestId, Name: interestName})
+	}
+	return userList, nil
 }

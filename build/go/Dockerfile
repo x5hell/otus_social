@@ -4,7 +4,9 @@ WORKDIR /go/src/
 
 COPY src /go/src/
 
-RUN go build main.go
+RUN apk add git && \
+    go get -u github.com/go-sql-driver/mysql && \
+    go build main.go
 
 ENTRYPOINT ["/go/src/main"]
 
