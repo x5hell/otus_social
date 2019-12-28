@@ -1,2 +1,3 @@
 #!/usr/bin/bash
-docker-compose rm -fs
+docker-compose stop -v
+docker-compose rm -fsv

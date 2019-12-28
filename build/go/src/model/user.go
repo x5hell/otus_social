@@ -7,7 +7,7 @@ type User struct {
 	FirstName string
 	LastName string
 	Age int
-	Sex int
+	Sex string
 	City City
 	InterestList []Interest
 }

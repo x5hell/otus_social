@@ -1,6 +1,4 @@
 version: '3.1'
-volumes:
-  init_sql:
 services:
   web:
     container_name: social_go
@@ -8,12 +6,14 @@ services:
     ports:
       - "8000:8001"
     env_file: .env
+    volumes:
+      - ./build/go/src:/go/src/
   db:
     container_name: social_mysql
-    build: ./build/mysql
+    image: mysql:8.0.18
     restart: always
     ports:
       - "3306:3306"
     env_file: .env
     volumes:
-      - init_sql:/docker-entrypoint-initdb.d
+      - ./build/mysql/init_sql:/docker-entrypoint-initdb.d

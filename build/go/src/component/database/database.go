@@ -40,13 +40,17 @@ func Exec(sqlQuery string, args ...interface{}) (res sql.Result, err error) {
 	return res, err
 }
 
-func Query(sqlQuery string, args ...interface{}) (rows *sql.Rows, err error) {
+func Query(sqlQuery string, args... interface{}) (rows *sql.Rows, err error) {
 	connection, err := GetConnection()
 	if err != nil {
 		return nil, err
 	}
-	rows, err = connection.Query(sqlQuery, args...)
-	return rows, fmt.Errorf(sqlQuery)
+	stmt, err := connection.Prepare(sqlQuery)
+	if err != nil {
+		return nil, err
+	}
+	rows, err = stmt.Query(args...)
+	return rows, err
 }
 
 func Close() error {

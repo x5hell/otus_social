@@ -2,12 +2,12 @@ FROM golang:1.13.5-alpine3.10
 
 WORKDIR /go/src/
 
-COPY src /go/src/
+COPY run.sh /run.sh
 
 RUN apk add git && \
     go get -u github.com/go-sql-driver/mysql && \
-    go build main.go
+    chmod +x /run.sh
 
-ENTRYPOINT ["/go/src/main"]
+ENTRYPOINT ["sh", "/run.sh"]
 
 EXPOSE 8001

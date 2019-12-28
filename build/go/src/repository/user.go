@@ -8,6 +8,7 @@ import (
 )
 
 func GetLastUsers(limit int) (userList map[int]model.User, err error) {
+
 	rows, err := database.Query(
 		"SELECT u.id, u.login, u.password, u.first_name, u.last_name, u.sex, c.name " +
 			"FROM user u " +
@@ -32,31 +33,33 @@ func GetLastUsers(limit int) (userList map[int]model.User, err error) {
 }
 
 func fillUserInterests(userList map[int]model.User) (userListWithInterest map[int]model.User, err error) {
-	var userIdList []int
-	var userIdPlaceList []string
-	for userId, _ := range userList {
-		userIdList = append(userIdList, userId)
-		userIdPlaceList = append(userIdPlaceList, "?")
-	}
-	userIdListQuery := strings.Join(userIdPlaceList, ",")
-	sqlQuery := fmt.Sprintf(
-		"SELECT ui.user_id, i.name, i.id " +
-		"FROM user_interest ui " +
-		"INNER JOIN interestName i ON (ui.interest_id = i.id) " +
-		"WHERE ui.user_id IN (%s)", userIdListQuery)
-	rows, err := database.Query(sqlQuery)
-	if err != nil {
-		return userListWithInterest, err
-	}
-	var userId, interestId int
-	var interestName string
-	for rows.Next() {
-		err = rows.Scan(&userId, &interestName, &interestId)
+	if len(userList) > 0 {
+		var userIdList []int
+		var userIdPlaceList []string
+		for userId, _ := range userList {
+			userIdList = append(userIdList, userId)
+			userIdPlaceList = append(userIdPlaceList, "?")
+		}
+		userIdListQuery := strings.Join(userIdPlaceList, ",")
+		sqlQuery := fmt.Sprintf(
+			"SELECT ui.user_id, i.name, i.id " +
+				"FROM user_interest ui " +
+				"INNER JOIN interestName i ON (ui.interest_id = i.id) " +
+				"WHERE ui.user_id IN (%s)", userIdListQuery)
+		rows, err := database.Query(sqlQuery)
 		if err != nil {
 			return userList, err
 		}
-		user := userList[userId]
-		user.InterestList = append(user.InterestList, model.Interest{ID:interestId, Name: interestName})
+		var userId, interestId int
+		var interestName string
+		for rows.Next() {
+			err = rows.Scan(&userId, &interestName, &interestId)
+			if err != nil {
+				return userList, err
+			}
+			user := userList[userId]
+			user.InterestList = append(user.InterestList, model.Interest{ID:interestId, Name: interestName})
+		}
 	}
 	return userList, nil
 }
