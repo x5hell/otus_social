@@ -7,6 +7,7 @@
         <p class="row">
             <label class="col-sm-4" for="login">Логин:*</label>
             <input class="col-sm-4" id="login" type="text" name="login"/>
+            <label class="col-sm-4 text-danger" id="login-error" for="login"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="password1">Пароль:*</label>
@@ -15,48 +16,49 @@
         <p class="row">
             <label class="col-sm-4" for="password2">Повторите пароль:*</label>
             <input class="col-sm-4" id="password2" type="password" name="password2"/>
+            <label class="col-sm-4 text-danger" id="password2-error" for="password2"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="first-name">Имя:*</label>
             <input class="col-sm-4" id="first-name" type="text" name="first-name"/>
+            <label class="col-sm-4 text-danger" id="first-name-error" for="first-name"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="last-name">Фамилия:*</label>
             <input class="col-sm-4" id="last-name" type="text" name="last-name"/>
+            <label class="col-sm-4 text-danger" id="last-name-error" for="last-name"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="age">Возраст:*</label>
-            <input class="col-sm-4" id="age" type="number" min="1" max="120" name="age"/>
+            <input class="col-sm-4" id="age" type="number" min="1" name="age"/>
+            <label class="col-sm-4 text-danger" id="age-error" for="age"></label>
         </p>
         <p class="row">
             <span class="col-sm-4">Пол:</span>
-            <span class="col-sm-4">
+            <span class="col-sm-4" id="sex">
                 <label for="male">Мужской:</label>
                 <input id="male" type="radio" value="1" name="sex"/>
                 <label for="female">Женский:</label>
-                <input id="female" type="radio" value="0" name="sex"/>
+                <input id="female" type="radio" value="2" name="sex"/>
             </span>
-
+            <label class="col-sm-4 text-danger" id="sex-error" for="sex"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="interests">Интересы:</label>
-            <select class="col-sm-4" id="interests">
-                <option value="1">вышивание крестиком</option>
-                <option value="2">крав-мага</option>
-                <option value="3">игра в го</option>
-                <option value="4">хор мальчиков</option>
-                <option value="5">иное</option>
+            <select class="col-sm-4" id="interests" multiple name="interests">
+                {{range .InterestList}}<option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
             </select>
+            <label class="col-sm-4 text-danger" id="interests-error" for="interests"></label>
         </p>
         <p class="row">
             <label class="col-sm-4" for="city">Город:</label>
-            <select class="col-sm-4" id="city">
-                <option value="1">Неелово</option>
-                <option value="2">Горелово</option>
-                <option value="3">Неурожайка</option>
-                <option value="4">Косяковка</option>
-                <option value="5">Козявкино</option>
+            <select class="col-sm-4" id="city" name="city">
+                <option value="">Не указан</option>
+                {{range .CityList}}<option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
             </select>
+            <label class="col-sm-4 text-danger" id="city-error" for="city"></label>
         </p>
         <i class="ri">* Поля обязательные для заполнения</i>
         <div class="dropdown-divider col-sm-8"></div>
@@ -67,5 +69,5 @@
 {{end}}
 
 {{define "custom-scripts"}}
-    <script src="/build/go/src/staticatic/js/registration.js"></script>
+    <script src="/static/js/registration.js"></script>
 {{end}}

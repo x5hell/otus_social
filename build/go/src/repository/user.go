@@ -8,7 +8,6 @@ import (
 )
 
 func GetLastUsers(limit int) (userList map[int]model.User, err error) {
-
 	rows, err := database.Query(
 		"SELECT u.id, u.login, u.password, u.first_name, u.last_name, u.sex, c.name " +
 			"FROM user u " +
@@ -32,6 +31,17 @@ func GetLastUsers(limit int) (userList map[int]model.User, err error) {
 	return userList, err
 }
 
+func LoginExists(login string) (result bool, err error) {
+	rows, err := database.Query("SELECT COUNT(id) FROM user WHERE login = ?", login)
+	if err != nil {
+		return false, err
+	}
+	rows.Next()
+	countUsers := 0
+	err = rows.Scan(&countUsers)
+	return countUsers > 0, err
+}
+
 func fillUserInterests(userList map[int]model.User) (userListWithInterest map[int]model.User, err error) {
 	if len(userList) > 0 {
 		var userIdList []int
@@ -46,7 +56,7 @@ func fillUserInterests(userList map[int]model.User) (userListWithInterest map[in
 				"FROM user_interest ui " +
 				"INNER JOIN interestName i ON (ui.interest_id = i.id) " +
 				"WHERE ui.user_id IN (%s)", userIdListQuery)
-		rows, err := database.Query(sqlQuery)
+		rows, err := database.Query(sqlQuery, userIdList)
 		if err != nil {
 			return userList, err
 		}

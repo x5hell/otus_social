@@ -6,8 +6,8 @@
 {{end}}
 
 {{define "body"}}
-    {{template "header"}}
-    <section id="content" class="container-fluid flex-grow">{{template "content"}}</section>
+    {{template "header" . }}
+    <section id="content" class="container-fluid flex-grow">{{template "content" . }}</section>
 {{end}}
 
 {{define "main-scripts"}}
