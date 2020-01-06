@@ -1,19 +1,20 @@
 package repository
 
 import (
+	"component/convert"
 	"component/database"
+	"entity"
 	"fmt"
-	"model"
 	"strings"
 )
 
-func GetAllInterests() (interestList []model.Interest, err error) {
+func GetAllInterests() (interestList []entity.Interest, err error) {
 	rows, err := database.Query("SELECT id, name FROM interest")
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		interest := model.Interest{}
+		interest := entity.Interest{}
 		err = rows.Scan(&interest.ID, &interest.Name)
 		if err != nil {
 			return interestList, err
@@ -33,7 +34,7 @@ func GetInvalidInterestIds(interestIdList []string) (invalidInterestIdList []str
 	interestIdListQuery := strings.Join(interestIdPlaceList, ",")
 	sqlQuery := fmt.Sprintf(
 		"SELECT id FROM interest WHERE id IN (%s)", interestIdListQuery)
-	rows, err := database.Query(sqlQuery, interestIdList)
+	rows, err := database.Query(sqlQuery, convert.StringListToInterfaceList(interestIdList)...)
 	if err != nil {
 		return invalidInterestIdList, err
 	}

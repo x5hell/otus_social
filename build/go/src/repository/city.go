@@ -2,17 +2,16 @@ package repository
 
 import (
 	"component/database"
-	"fmt"
-	"model"
+	"entity"
 )
 
-func GetAllCities() (cityList []model.City, err error) {
+func GetAllCities() (cityList []entity.City, err error) {
 	rows, err := database.Query("SELECT id, name FROM city")
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		city := model.City{}
+		city := entity.City{}
 		err = rows.Scan(&city.ID, &city.Name)
 		if err != nil {
 			return cityList, err

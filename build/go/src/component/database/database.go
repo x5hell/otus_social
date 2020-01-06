@@ -31,6 +31,14 @@ func GetConnection() (connection *sql.DB, err error)  {
 	return localConnection, nil
 }
 
+func CloseConnection() error {
+	connect, err := GetConnection()
+	if err != nil {
+		return err
+	}
+	return connect.Close()
+}
+
 func Exec(sqlQuery string, args ...interface{}) (res sql.Result, err error) {
 	connection, err := GetConnection()
 	if err != nil {
@@ -40,7 +48,7 @@ func Exec(sqlQuery string, args ...interface{}) (res sql.Result, err error) {
 	return res, err
 }
 
-func Query(sqlQuery string, args... interface{}) (rows *sql.Rows, err error) {
+func Query(sqlQuery string, args ...interface{}) (rows *sql.Rows, err error) {
 	connection, err := GetConnection()
 	if err != nil {
 		return nil, err

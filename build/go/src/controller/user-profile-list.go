@@ -2,7 +2,7 @@ package controller
 
 import (
 	"component/template"
-	"model"
+	"entity"
 	"net/http"
 	"repository"
 )
@@ -10,7 +10,7 @@ import (
 const UserProfileListLimit = 10
 
 type LastUserProfileLIst struct {
-	Users map[int]model.User
+	Users map[int]entity.User
 }
 
 func UserProfileList(response http.ResponseWriter, request *http.Request)  {

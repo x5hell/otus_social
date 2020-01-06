@@ -16,6 +16,11 @@ type FieldValidation struct {
 	ValidationParameter string
 }
 
+type FieldValidationResult struct {
+	ValidationResult bool
+	FieldErrors      map[string]error
+}
+
 type Validator interface{
 	Validate() error
 }
@@ -30,7 +35,7 @@ type digitMax struct { *FieldValidation }
 
 func (field required) Validate() error {
 	if len(field.FieldValue) == 0 {
-		return fmt.Errorf("field %s required", field.FieldName)
+		return fmt.Errorf("не заполнено поле")
 	}
 	return nil
 }
@@ -38,12 +43,11 @@ func (field required) Validate() error {
 func (field symbolsMin) Validate() error {
 	min, err := strconv.Atoi(field.ValidationParameter)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, err.Error())
+		return fmt.Errorf("не верный формат :: %s", err.Error())
 	}
 	if len(field.FieldValue) < min {
 		return fmt.Errorf(
-			"field %s contains %d symbols (min %d symbols required)",
-			field.FieldName,
+			"поле содержит %d символов (требуется минимум %d символов)",
 			len(field.FieldValue),
 			min)
 	}
@@ -53,12 +57,11 @@ func (field symbolsMin) Validate() error {
 func (field symbolsMax) Validate() error {
 	max, err := strconv.Atoi(field.ValidationParameter)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, err.Error())
+		return fmt.Errorf("не верный формат :: %s", err.Error())
 	}
 	if len(field.FieldValue) > max {
 		return fmt.Errorf(
-			"field %s contains %d symbols (max %d symbols required)",
-			field.FieldName,
+			"поле содержит %d символов (требуется максимум %d символов)",
 			len(field.FieldValue),
 			max)
 	}
@@ -68,12 +71,11 @@ func (field symbolsMax) Validate() error {
 func (field regex) Validate() error {
 	regexpValidation, err := regexp.Compile(field.ValidationParameter)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, err.Error())
+		return fmt.Errorf("не верный формат :: %s", err.Error())
 	}
 	if regexpValidation.MatchString(field.FieldValue) == false {
 		return fmt.Errorf(
-			"field %s does not match regular expression: %s",
-			field.FieldName,
+			"поле не соответствует регулярному выражению: %s",
 			field.ValidationParameter)
 	}
 	return nil
@@ -82,7 +84,7 @@ func (field regex) Validate() error {
 func (field isInt) Validate() error {
 	_, err := strconv.Atoi(field.FieldValue)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, "is not int")
+		return fmt.Errorf("поле не целое")
 	}
 	return nil
 }
@@ -90,18 +92,14 @@ func (field isInt) Validate() error {
 func (field digitMin) Validate() error {
 	min, err := strconv.Atoi(field.ValidationParameter)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, err.Error())
+		return fmt.Errorf("не верный формат :: %s", err.Error())
 	}
 	fieldValue, err := strconv.Atoi(field.FieldValue)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, "is not a digit")
+		return fmt.Errorf("поле не является числом")
 	}
 	if fieldValue < min {
-		return fmt.Errorf(
-			"field %s is %d (min %d required)",
-			field.FieldName,
-			fieldValue,
-			min)
+		return fmt.Errorf("содержит %d (требуется минимум %d)", fieldValue, min)
 	}
 	return nil
 }
@@ -109,18 +107,14 @@ func (field digitMin) Validate() error {
 func (field digitMax) Validate() error {
 	max, err := strconv.Atoi(field.ValidationParameter)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, err.Error())
+		return fmt.Errorf("не верный формат :: %s", err.Error())
 	}
 	fieldValue, err := strconv.Atoi(field.FieldValue)
 	if err != nil {
-		return fmt.Errorf("field %s :: %s", field.FieldName, "is not a digit")
+		return fmt.Errorf("поле не является числом")
 	}
 	if fieldValue > max {
-		return fmt.Errorf(
-			"field %s is %d (max %d required)",
-			field.FieldName,
-			fieldValue,
-			max)
+		return fmt.Errorf("содержит %d (требуется максимум %d)", fieldValue, max)
 	}
 	return nil
 }
@@ -146,7 +140,7 @@ func (field FieldValidation) getValidator() (result Validator) {
 	return nil
 }
 
-func ValidateStructure(requestStructure interface{}) (result bool, fieldErrors map[string]error) {
+func ValidateStructure(requestStructure interface{}, fieldAliasList map[string]string) (result bool, fieldErrors map[string]error) {
 	errors := make(map[string]error)
 	typeList := reflect.TypeOf(requestStructure)
 	valueList := reflect.ValueOf(requestStructure)
@@ -155,7 +149,10 @@ func ValidateStructure(requestStructure interface{}) (result bool, fieldErrors m
 		fieldType := typeList.Field(fieldNumber)
 		fieldValue := valueList.Field(fieldNumber)
 		fieldName := fieldType.Tag.Get(controllerResponse.FieldTagName)
-		fieldValidationList := getFieldValidationList(fieldType, fieldValue)
+		if fieldNameAlias, fieldNameAliasExists := fieldAliasList[fieldName] ; fieldNameAliasExists {
+			fieldName = fieldNameAlias
+		}
+		fieldValidationList := getFieldValidationList(fieldType, fieldValue, fieldName)
 		err := validateField(fieldValidationList)
 		if err != nil {
 			errors[fieldName] = err
@@ -177,10 +174,9 @@ func validateField(fieldValidationList []FieldValidation) error {
 	return nil
 }
 
-func getFieldValidationList(fieldType reflect.StructField, fieldValue reflect.Value) []FieldValidation {
+func getFieldValidationList(fieldType reflect.StructField, fieldValue reflect.Value, fieldName string) []FieldValidation {
 	var fieldValidationList []FieldValidation
 	validationRules := fieldType.Tag.Get(controllerResponse.FieldTagValidation)
-	fieldName := fieldType.Tag.Get(controllerResponse.FieldTagName)
 	validationRulesParts := strings.Split(validationRules, ",")
 	for _, validationRule := range validationRulesParts {
 		fieldValidation := FieldValidation{}

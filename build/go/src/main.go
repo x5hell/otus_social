@@ -10,7 +10,7 @@ const AppPort = "8001"
 
 func main()  {
 	fs := http.FileServer(http.Dir("static"))
-	http.HandleFunc("/", controller.UserProfileList)
+	http.HandleFunc("/index", controller.UserProfileList)
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/registration-form", controller.RegistrationForm)
 	http.HandleFunc("/registration", controller.Registration)

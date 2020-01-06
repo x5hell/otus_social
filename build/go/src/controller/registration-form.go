@@ -3,14 +3,14 @@ package controller
 import (
 	"component/template"
 	"fmt"
-	"model"
+	"entity"
 	"net/http"
 	"repository"
 )
 
 type TemplateData struct {
-	CityList []model.City
-	InterestList []model.Interest
+	CityList []entity.City
+	InterestList []entity.Interest
 }
 
 func RegistrationForm(response http.ResponseWriter, request *http.Request)  {

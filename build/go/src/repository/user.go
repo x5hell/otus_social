@@ -1,13 +1,15 @@
 package repository
 
 import (
+	"component/convert"
 	"component/database"
+	"component/handler"
+	"entity"
 	"fmt"
-	"model"
 	"strings"
 )
 
-func GetLastUsers(limit int) (userList map[int]model.User, err error) {
+func GetLastUsers(limit int) (userList map[int]entity.User, err error) {
 	rows, err := database.Query(
 		"SELECT u.id, u.login, u.password, u.first_name, u.last_name, u.sex, c.name " +
 			"FROM user u " +
@@ -17,9 +19,9 @@ func GetLastUsers(limit int) (userList map[int]model.User, err error) {
 	if err != nil {
 		return nil, err
 	}
-	userList = make(map[int]model.User)
+	userList = make(map[int]entity.User)
 	for rows.Next() {
-		user := model.User{InterestList: []model.Interest{}}
+		user := entity.User{InterestList: []entity.Interest{}}
 		err = rows.Scan(&user.ID, &user.Login, &user.Password, &user.FirstName, &user.LastName, &user.Sex, &user.City)
 		if err != nil {
 			return userList, err
@@ -42,7 +44,7 @@ func LoginExists(login string) (result bool, err error) {
 	return countUsers > 0, err
 }
 
-func fillUserInterests(userList map[int]model.User) (userListWithInterest map[int]model.User, err error) {
+func fillUserInterests(userList map[int]entity.User) (userListWithInterest map[int]entity.User, err error) {
 	if len(userList) > 0 {
 		var userIdList []int
 		var userIdPlaceList []string
@@ -68,8 +70,62 @@ func fillUserInterests(userList map[int]model.User) (userListWithInterest map[in
 				return userList, err
 			}
 			user := userList[userId]
-			user.InterestList = append(user.InterestList, model.Interest{ID:interestId, Name: interestName})
+			user.InterestList = append(user.InterestList, entity.Interest{ID: interestId, Name: interestName})
 		}
 	}
 	return userList, nil
+}
+
+func InsertUser(user *entity.User) error {
+	connect, err :=  database.GetConnection()
+	if err != nil {
+		return err
+	}
+	transaction, err := connect.Begin()
+	if err != nil {
+		return err
+	}
+	var sex, cityId interface{}
+	if len(user.Sex) > 0 {
+		sex = user.Sex
+	} else {
+		sex = nil
+	}
+	if user.City.ID > 0 {
+		cityId = user.City.ID
+	} else {
+		cityId = nil
+	}
+	sqlQuery := "INSERT INTO user (login, password, first_name, last_name, age, sex, city_id) " +
+		"VALUES  (?, ?, ?, ?, ?, ?, ?)"
+	sqlResult, err := transaction.Exec(sqlQuery,
+		user.Login, user.Password, user.FirstName, user.LastName, user.Age, sex, cityId)
+	if err != nil {
+		handler.ErrorLog(transaction.Rollback())
+		return err
+	}
+
+	userId, err := sqlResult.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	if len(user.InterestList) > 0 {
+		var queryParameters []int64
+		var queryParametersPlaceholder []string
+		for _, interest := range user.InterestList {
+			queryParametersPlaceholder = append(queryParametersPlaceholder, "(?, ?)")
+			queryParameters = append(queryParameters, userId, int64(interest.ID))
+		}
+		sqlQuery = fmt.Sprintf("INSERT INTO user_interest (user_id, interest_id) VALUES %s;",
+			strings.Join(queryParametersPlaceholder, ", "))
+		_, err = transaction.Exec(sqlQuery, convert.Int64ListToInterfaceList(queryParameters)...)
+		if err != nil {
+			handler.ErrorLog(transaction.Rollback())
+			return err
+		}
+	}
+	handler.ErrorLog(transaction.Commit())
+	user.ID = int(userId)
+	return nil
 }

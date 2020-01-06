@@ -10,14 +10,23 @@ import (
 const FieldTagName = "name"
 const FieldTagValidation = "validation"
 
-const ServerErrorMessage = "server error"
+const ServerErrorMessage = "ошибка на стороне сервера"
 
 type ErrorMessage struct {
 	Error string `json:"error"`
 }
 
+type OkMessage struct {
+	Ok string `json:"ok"`
+}
+
 type ErrorForm struct {
 	Error map[string]string `json:"error"`
+}
+
+func JsonOkMessage(okMessage string, response http.ResponseWriter) {
+	result, _ := json.Marshal(OkMessage{Ok: okMessage})
+	fmt.Fprintf(response, string(result))
 }
 
 func JsonErrorMessage(errorMessage string, response http.ResponseWriter) {
@@ -65,14 +74,14 @@ func ParseRequest (response http.ResponseWriter, request *http.Request, method s
 		case method:
 			err := request.ParseForm()
 			if err != nil {
-				JsonErrorMessage("parse request error", response)
+				JsonErrorMessage("ошибка разбора запроса", response)
 			} else {
 				callback(response, request)
 			}
 			break
 		default:
 			JsonErrorMessage(
-				fmt.Sprintf("request method '%s' not supported", request.Method),
+				fmt.Sprintf("запрос типа '%s' не поддерживается", request.Method),
 				response)
 		}
 }
