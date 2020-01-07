@@ -85,6 +85,7 @@ func InsertUser(user *entity.User) error {
 	if err != nil {
 		return err
 	}
+	password := convert.StringToMd5(user.Password)
 	var sex, cityId interface{}
 	if len(user.Sex) > 0 {
 		sex = user.Sex
@@ -99,7 +100,7 @@ func InsertUser(user *entity.User) error {
 	sqlQuery := "INSERT INTO user (login, password, first_name, last_name, age, sex, city_id) " +
 		"VALUES  (?, ?, ?, ?, ?, ?, ?)"
 	sqlResult, err := transaction.Exec(sqlQuery,
-		user.Login, user.Password, user.FirstName, user.LastName, user.Age, sex, cityId)
+		user.Login, password, user.FirstName, user.LastName, user.Age, sex, cityId)
 	if err != nil {
 		handler.ErrorLog(transaction.Rollback())
 		return err

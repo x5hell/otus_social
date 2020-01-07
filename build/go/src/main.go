@@ -10,11 +10,12 @@ const AppPort = "8001"
 
 func main()  {
 	fs := http.FileServer(http.Dir("static"))
-	http.HandleFunc("/index", controller.UserProfileList)
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/registration-form", controller.RegistrationForm)
-	http.HandleFunc("/registration", controller.Registration)
-	http.HandleFunc("/login-form", controller.LoginForm)
-	http.HandleFunc("/edit-profile-form", controller.EditProfileForm)
-	log.Fatal(http.ListenAndServe("0.0.0.0:" + AppPort, nil))
+	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
+	mux.HandleFunc("/index", controller.UserProfileList)
+	mux.HandleFunc("/registration-form", controller.RegistrationForm)
+	mux.HandleFunc("/registration", controller.Registration)
+	mux.HandleFunc("/login-form", controller.LoginForm)
+	mux.HandleFunc("/edit-profile-form", controller.EditProfileForm)
+	log.Fatal(http.ListenAndServe("0.0.0.0:" + AppPort, mux))
 }

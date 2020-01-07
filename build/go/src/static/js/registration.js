@@ -32,6 +32,9 @@ $(function () {
             let errorMessage = errorList[fieldId];
             showError(fieldId, errorMessage);
         }
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $('.is-invalid').first().offset().top
+        }, 500);
     };
 
     let showError = function(fieldId, errorMessage){
