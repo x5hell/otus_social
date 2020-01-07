@@ -1,20 +1,25 @@
 {{define "title"}}Авторизация{{end}}
 
 {{define "content"}}
-    <form method="POST" action="/login" class="container">
+    <form id="login-form" method="POST" action="/login" class="container">
         <h1>Авторизация</h1>
         <div class="dropdown-divider col-sm-8"></div>
         <p class="row">
-            <label class="col-sm-4" for="login">Логин:*</label>
-            <input class="col-sm-4" id="login" type="text" name="login"/>
+            <label class="col-sm-4" for="login">Логин:</label>
+            <input class="col-sm-4 validation-element" id="login" type="text" name="login"/>
         </p>
         <p class="row">
-            <label class="col-sm-4" for="password1">Пароль:*</label>
-            <input class="col-sm-4" id="password1" type="password" name="password1"/>
+            <label class="col-sm-4" for="password">Пароль:</label>
+            <input class="col-sm-4 validation-element" id="password" type="password" name="password"/>
         </p>
         <div class="dropdown-divider col-sm-8"></div>
         <p class="row">
-            <button type="submit" class="btn btn-primary col-sm-8">Войти</button>
+            <button id="login-button" type="submit" class="btn btn-primary col-sm-8">Войти</button>
         </p>
     </form>
+{{end}}
+
+{{define "custom-scripts"}}
+    <script src="/static/js/form.js"></script>
+    <script src="/static/js/login.js"></script>
 {{end}}

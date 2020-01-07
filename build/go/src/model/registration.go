@@ -28,15 +28,16 @@ type RegistrationRequest struct {
 	City      string   `name:"FieldNameCity"`
 }
 
-type RegistrationModel struct {
-	RequestStruct    RegistrationRequest
-}
-
 func Registration(requestStruct RegistrationRequest) (userId int, fieldErrors map[string]error) {
 	validationResult := validateRegistrationRequest(requestStruct)
 	if validationResult.ValidationResult {
 		user := buildUserEntity(requestStruct)
 		err := repository.InsertUser(&user)
+		if err != nil {
+			validationResult.FieldErrors[FieldRegistration] = fmt.Errorf(controllerResponse.ServerErrorMessage)
+			handler.ErrorLog(err)
+		}
+		err = GetSessionData().Set(UserIdName, userId)
 		if err != nil {
 			validationResult.FieldErrors[FieldRegistration] = fmt.Errorf(controllerResponse.ServerErrorMessage)
 			handler.ErrorLog(err)

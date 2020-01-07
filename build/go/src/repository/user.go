@@ -130,3 +130,18 @@ func InsertUser(user *entity.User) error {
 	user.ID = int(userId)
 	return nil
 }
+
+func GetUserByAuth(login, password string) (user *entity.User, err error) {
+	passwordMd5 := convert.StringToMd5(password)
+	rows, err := database.Query(
+		"SELECT id FROM user WHERE login = ? AND password = ? ", login, passwordMd5)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		user := entity.User{}
+		err = rows.Scan(&user.ID)
+		return &user, err
+	}
+	return nil, fmt.Errorf("пользователь с таким логином и паролем не найден")
+}

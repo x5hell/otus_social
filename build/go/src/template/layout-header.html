@@ -3,7 +3,19 @@
 {{end}}
 
 {{define "body"}}
-    {{template "header" . }}
+    <nav id="header" class="navbar navbar-light bg-light navbar-expand-md">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/user-profile-list">Главная</a>
+            {{if not Authorized}}
+                <a class="nav-item nav-link" href="/login-form">Войти</a>
+                <a class="nav-item nav-link" href="/registration-form">Зарегистрироваться</a>
+            {{end}}
+            {{if Authorized}}
+                <a class="nav-item nav-link" href="/edit-profile-form">Анкета</a>
+                <a class="nav-item nav-link" href="/logout">Выйти</a>
+            {{end}}
+        </div>
+    </nav>
     <section id="content" class="container-fluid flex-grow">{{template "content" . }}</section>
 {{end}}
 
@@ -11,6 +23,7 @@
     <script src="/static/js/external/jquery-3.3.1.js"></script>
     <script src="/static/js/external/popper.js"></script>
     <script src="/static/js/external/bootstrap.js"></script>
+    <script src="/static/js/navigation.js"></script>
 {{end}}
 
 {{define "custom-scripts"}}

@@ -12,7 +12,7 @@ func Registration(response http.ResponseWriter, request *http.Request)  {
 }
 
 func registrationAction(response http.ResponseWriter, request *http.Request){
-	requestStruct := createRequestStruct(request)
+	requestStruct := createRegistrationRequest(request)
 	userId, fieldErrors := model.Registration(requestStruct)
 	if userId > 0 {
 		controllerResponse.JsonOkMessage(fmt.Sprintf("%d", userId), response)
@@ -21,7 +21,7 @@ func registrationAction(response http.ResponseWriter, request *http.Request){
 	}
 }
 
-func createRequestStruct(request *http.Request) model.RegistrationRequest {
+func createRegistrationRequest(request *http.Request) model.RegistrationRequest {
 	var modelRegistrationRequest model.RegistrationRequest
 	fieldAliasList := model.GetRegistrationFieldAliasList()
 	controllerResponse.FillStructureFromRequest(request, &modelRegistrationRequest, fieldAliasList)

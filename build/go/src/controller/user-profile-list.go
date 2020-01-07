@@ -14,7 +14,7 @@ type LastUserProfileLIst struct {
 }
 
 func UserProfileList(response http.ResponseWriter, request *http.Request)  {
-	htmlTemplate, err := template.OpenGuestTemplate("user-profile-list.html")
+	htmlTemplate, err := template.OpenUserTemplate("user-profile-list.html")
 	if err != nil {
 		panic(err)
 	}

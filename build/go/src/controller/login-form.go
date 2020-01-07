@@ -7,7 +7,7 @@ import (
 )
 
 func LoginForm(response http.ResponseWriter, request *http.Request)  {
-	htmlTemplate, err := template.OpenGuestTemplate("login-form.html")
+	htmlTemplate, err := template.OpenUserTemplate("login-form.html")
 	if err != nil {
 		fmt.Fprintf(response, "error: %v", err)
 	} else {
