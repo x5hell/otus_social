@@ -1,6 +1,7 @@
 package database
 
 import (
+	"component/handler"
 	"database/sql"
 	"fmt"
 	"os"
@@ -91,4 +92,14 @@ func getConnectionSettings() (user, password, host, port, dbname string, err err
 		return "", "", "", "", "", fmt.Errorf("envoirment variable %s not set", EnvSqlDatabase)
 	}
 	return user, password, host, port, dbname, nil
+}
+
+func GetTransaction() (transaction *sql.Tx, err error)  {
+	connect, err :=  GetConnection()
+	if err != nil {
+		handler.ErrorLog(err)
+		return nil, err
+	}
+	transaction, err = connect.Begin()
+	return transaction, err
 }

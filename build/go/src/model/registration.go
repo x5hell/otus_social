@@ -2,6 +2,7 @@ package model
 
 import (
 	"component/controllerResponse"
+	"component/database"
 	"component/handler"
 	"component/validation"
 	"database/sql"
@@ -33,23 +34,37 @@ func Registration(requestStruct RegistrationRequest) (userId int, fieldErrors ma
 	validationResult := validateRegistrationRequest(requestStruct)
 	if validationResult.ValidationResult {
 		user := buildUserEntity(requestStruct)
-		userInterestList := buildUserInterestEntityList()
-		err := repository.InsertUser(&user)
+		transaction, err := database.GetTransaction()
 		if err != nil {
-			validationResult.FieldErrors[registrationButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
-			handler.ErrorLog(err)
-			return 0, validationResult.FieldErrors
+			return registrationServeError(transaction, validationResult, err)
 		}
-		err = GetSessionData().Set(UserIdName, userId)
+		err = repository.InsertUser(&user, transaction)
 		if err != nil {
-			validationResult.FieldErrors[registrationButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
-			handler.ErrorLog(err)
-			return 0, validationResult.FieldErrors
+			return registrationServeError(transaction, validationResult, err)
 		}
+		userInterestEntityList := buildUserInterestEntityList(requestStruct, user.ID)
+		err = repository.InsertUserInterestEntityList(userInterestEntityList, transaction)
+		if err != nil {
+			return registrationServeError(transaction, validationResult, err)
+		}
+		err = GetSessionData().Set(UserIdName, user.ID)
+		if err != nil {
+			return registrationServeError(transaction, validationResult, err)
+		}
+		handler.ErrorLog(transaction.Commit())
 		return user.ID, validationResult.FieldErrors
 	} else {
 		return 0, validationResult.FieldErrors
 	}
+}
+
+func registrationServeError(transaction *sql.Tx, validationResult validation.FieldValidationResult, err error) (int, map[string]error) {
+	if transaction != nil {
+		handler.ErrorLog(transaction.Rollback())
+	}
+	validationResult.FieldErrors[registrationButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
+	handler.ErrorLog(err)
+	return 0, validationResult.FieldErrors
 }
 
 func GetRegistrationFieldAliasList() map[string]string {

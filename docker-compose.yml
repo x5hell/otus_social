@@ -18,3 +18,4 @@ services:
     env_file: .env
     volumes:
       - ./build/mysql/init_sql:/docker-entrypoint-initdb.d
+      - ./build/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
