@@ -25,6 +25,13 @@ Form.prototype = {
             .popover("show");
     },
 
+    hideErrors: function(){
+        let self = this;
+        $('.validation-element').each(function () {
+            self.hideError($(this).attr('id'));
+        });
+    },
+
     hideError: function(fieldId){
         $('#' + fieldId)
             .removeClass('form-control is-invalid')

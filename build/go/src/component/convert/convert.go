@@ -23,6 +23,14 @@ func Int64ListToInterfaceList(int64List []int64) []interface{} {
 	return interfaceList
 }
 
+func IntListToInterfaceList(intList []int) []interface{} {
+	interfaceList := make([]interface{}, len(intList))
+	for index, value := range intList {
+		interfaceList[index] = value
+	}
+	return interfaceList
+}
+
 func StringToMd5(str string) (hash string) {
 	h := md5.New()
 	_, err := io.WriteString(h, str)

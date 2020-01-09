@@ -1,13 +1,13 @@
 $(function () {
-    $('#login-form').submit(function (event) {
+    $('#edit-profile-form').submit(function (event) {
 
-        $('#login-button').attr("disabled", "disabled");
+        $('#edit-profile-button').attr("disabled", "disabled");
         form.hideErrors();
         $.post(
-            '/login',
-            $('#login-form').serializeArray(),
+            '/edit-profile',
+            $('#edit-profile-form').serializeArray(),
             function (data) {
-                $('#login-button').removeAttr("disabled");
+                $('#edit-profile-button').removeAttr("disabled");
                 if("error" in data){
                     form.showErrors(data["error"]);
                 }

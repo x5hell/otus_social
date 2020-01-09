@@ -1,5 +1,7 @@
 package entity
 
+import "database/sql"
+
 type User struct {
 	ID int
 	Login string
@@ -7,7 +9,6 @@ type User struct {
 	FirstName string
 	LastName string
 	Age int
-	Sex string
-	City City
-	InterestList []Interest
+	Sex sql.NullString
+	CityId sql.NullInt64
 }

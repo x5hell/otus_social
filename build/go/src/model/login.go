@@ -8,7 +8,7 @@ import (
 	"repository"
 )
 
-const FieldLogin = "login"
+const fieldLoginButton = "login-button"
 
 type LoginRequest struct {
 	Login    string `name:"login" validation:"required"`
@@ -21,7 +21,7 @@ func Login(requestStruct LoginRequest) (userId int, fieldErrors map[string]error
 	if validationResult.ValidationResult {
 		err := GetSessionData().Set(UserIdName, userId)
 		if err != nil {
-			validationResult.FieldErrors[FieldLogin] = fmt.Errorf(controllerResponse.ServerErrorMessage)
+			validationResult.FieldErrors[fieldLoginButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
 			handler.ErrorLog(err)
 		}
 		return userId, validationResult.FieldErrors
@@ -41,7 +41,7 @@ func checkAuth(requestStruct LoginRequest, validationResult *validation.FieldVal
 		if err == nil {
 			return user.ID
 		}
-		validationResult.FieldErrors[FieldLogin] = err
+		validationResult.FieldErrors[fieldLoginButton] = err
 		validationResult.ValidationResult = false
 	}
 	return 0

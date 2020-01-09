@@ -2,9 +2,7 @@ $(function () {
     $('#registration-form').submit(function (event) {
 
         $('#registration-button').attr("disabled", "disabled");
-        $('.validation-element').each(function () {
-            form.hideError($(this).attr('id'));
-        });
+        form.hideErrors();
         $.post(
             '/registration',
             $('#registration-form').serializeArray(),

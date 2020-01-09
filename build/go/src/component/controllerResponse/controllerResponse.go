@@ -11,6 +11,7 @@ const FieldTagName = "name"
 const FieldTagValidation = "validation"
 
 const ServerErrorMessage = "ошибка на стороне сервера"
+const SessionExpiredMessage = "сессия закончилась войдите снова"
 
 type ErrorMessage struct {
 	Error string `json:"error"`
