@@ -10,12 +10,18 @@ import (
 const UserIdName = "userId"
 
 var sessionData session.Session
+var sessionManager *session.Manager
 
 func InitSession(response http.ResponseWriter, request *http.Request) {
 	memory.Init()
-	sessionManager, err := session.NewManager("memory", "gosessionid", 3600)
+	var err error
+	sessionManager, err = session.NewManager("memory", "gosessionid", 3600)
 	handler.ErrorLog(err)
 	sessionData = sessionManager.SessionStart(response, request)
+}
+
+func GetSessionManager() *session.Manager {
+	return sessionManager
 }
 
 func GetSessionData() session.Session {

@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"component/controllerResponse"
 	"component/template"
-	"fmt"
 	"model"
 	"net/http"
 )
@@ -10,14 +10,14 @@ import (
 func RegistrationForm(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("registration-form.html")
 	if err != nil {
-		fmt.Fprintf(response, "error: %v", err)
+		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
 		data, err := model.GetRegistrationFormData()
 		if err != nil {
-			fmt.Fprintf(response, "error: %v", err)
+			controllerResponse.GetTemplateDataError(response, err)
 		} else {
-			htmlTemplate.
-				ExecuteTemplate(response, template.LayoutName, data)
+			err = htmlTemplate.ExecuteTemplate(response, template.LayoutName, data)
+			controllerResponse.TemplateFillError(response, err)
 		}
 	}
 }

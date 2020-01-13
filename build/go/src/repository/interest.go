@@ -3,6 +3,7 @@ package repository
 import (
 	"component/convert"
 	"component/database"
+	"component/handler"
 	"entity"
 	"fmt"
 	"strings"
@@ -11,12 +12,14 @@ import (
 func GetAllInterests() (interestList []entity.Interest, err error) {
 	rows, err := database.Query("SELECT id, name FROM interest")
 	if err != nil {
+		handler.ErrorLog(err)
 		return nil, err
 	}
 	for rows.Next() {
 		interest := entity.Interest{}
 		err = rows.Scan(&interest.ID, &interest.Name)
 		if err != nil {
+			handler.ErrorLog(err)
 			return interestList, err
 		}
 		interestList = append(interestList, interest)
@@ -36,12 +39,14 @@ func GetInvalidInterestIds(interestIdList []string) (invalidInterestIdList []str
 		"SELECT id FROM interest WHERE id IN (%s)", interestIdListQuery)
 	rows, err := database.Query(sqlQuery, convert.StringListToInterfaceList(interestIdList)...)
 	if err != nil {
+		handler.ErrorLog(err)
 		return invalidInterestIdList, err
 	}
 	var interestId string
 	for rows.Next() {
 		err = rows.Scan(&interestId)
 		if err != nil {
+			handler.ErrorLog(err)
 			return invalidInterestIdList, err
 		}
 		delete(interestIdMap, interestId)

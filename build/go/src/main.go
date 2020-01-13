@@ -26,6 +26,9 @@ func main()  {
 	mux.HandleFunc("/login", controller.Middleware(
 		controller.Login, controller.UseSession))
 
+	mux.HandleFunc("/logout", controller.Middleware(
+		controller.Logout, controller.UseSession))
+
 	mux.HandleFunc("/edit-profile-form", controller.Middleware(
 		controller.EditProfileForm, controller.UseSession, controller.NotAuthorizedMiddleware))
 	mux.HandleFunc("/edit-profile", controller.Middleware(

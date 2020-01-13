@@ -1,13 +1,11 @@
 package model
 
 import (
-	"component/controllerResponse"
 	"component/database"
 	"component/handler"
 	"component/validation"
 	"database/sql"
 	"entity"
-	"fmt"
 	"repository"
 	"strconv"
 )
@@ -36,35 +34,26 @@ func Registration(requestStruct RegistrationRequest) (userId int, fieldErrors ma
 		user := buildUserEntity(requestStruct)
 		transaction, err := database.GetTransaction()
 		if err != nil {
-			return registrationServeError(transaction, validationResult, err)
+			return 0, FormFieldServerErrorWithRollback(transaction, validationResult, err, registrationButton)
 		}
 		err = repository.InsertUser(&user, transaction)
 		if err != nil {
-			return registrationServeError(transaction, validationResult, err)
+			return 0, FormFieldServerErrorWithRollback(transaction, validationResult, err, registrationButton)
 		}
-		userInterestEntityList := buildUserInterestEntityList(requestStruct, user.ID)
+		userInterestEntityList := BuildUserInterestEntityList(requestStruct.Interests, user.ID)
 		err = repository.InsertUserInterestEntityList(userInterestEntityList, transaction)
 		if err != nil {
-			return registrationServeError(transaction, validationResult, err)
+			return 0, FormFieldServerErrorWithRollback(transaction, validationResult, err, registrationButton)
 		}
 		err = GetSessionData().Set(UserIdName, user.ID)
 		if err != nil {
-			return registrationServeError(transaction, validationResult, err)
+			return 0, FormFieldServerErrorWithRollback(transaction, validationResult, err, registrationButton)
 		}
 		handler.ErrorLog(transaction.Commit())
 		return user.ID, validationResult.FieldErrors
 	} else {
 		return 0, validationResult.FieldErrors
 	}
-}
-
-func registrationServeError(transaction *sql.Tx, validationResult validation.FieldValidationResult, err error) (int, map[string]error) {
-	if transaction != nil {
-		handler.ErrorLog(transaction.Rollback())
-	}
-	validationResult.FieldErrors[registrationButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
-	handler.ErrorLog(err)
-	return 0, validationResult.FieldErrors
 }
 
 func GetRegistrationFieldAliasList() map[string]string {
@@ -109,14 +98,3 @@ func buildUserEntity(requestStruct RegistrationRequest) (user entity.User) {
 	return user
 }
 
-func buildUserInterestEntityList(requestStruct RegistrationRequest, userId int) (userInterestsList []entity.UserInterest) {
-	for _, interestId := range requestStruct.Interests {
-		interestIdInt, err := strconv.Atoi(interestId)
-		handler.ErrorLog(err)
-		userInterestsList = append(userInterestsList, entity.UserInterest{
-			UserId: userId,
-			InterestId:interestIdInt,
-		})
-	}
-	return userInterestsList
-}

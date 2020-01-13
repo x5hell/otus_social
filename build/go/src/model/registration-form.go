@@ -6,7 +6,7 @@ import (
 )
 
 type RegistrationFormData struct {
-	CityList     []entity.City
+	CityList     map[int]entity.City
 	InterestList []entity.Interest
 }
 

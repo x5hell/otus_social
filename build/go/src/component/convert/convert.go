@@ -37,3 +37,11 @@ func StringToMd5(str string) (hash string) {
 	handler.ErrorLog(err)
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
+
+func IntListToQueryParameterPlaceList(intList []int) (queryParameterPlaceList []string) {
+	queryParameterPlaceList = []string{}
+	for _, _ = range intList {
+		queryParameterPlaceList = append(queryParameterPlaceList, "?")
+	}
+	return queryParameterPlaceList
+}

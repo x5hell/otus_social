@@ -7,11 +7,12 @@ import (
 	"database/sql"
 	"entity"
 	"fmt"
+	"strings"
 )
 
-func GetLastUsers(limit int) (userList map[int]entity.User, err error) {
+func GetLastUsers(limit int) (userList []entity.User, err error) {
 	rows, err := database.Query(
-		"SELECT id, login, password, first_name, last_name, sex, city_id " +
+		"SELECT id, login, first_name, last_name, age, sex, city_id " +
 			"FROM user " +
 			"ORDER BY id DESC " +
 			"LIMIT ?", limit)
@@ -19,16 +20,16 @@ func GetLastUsers(limit int) (userList map[int]entity.User, err error) {
 		handler.ErrorLog(err)
 		return nil, err
 	}
-	userList = make(map[int]entity.User)
+	userList = []entity.User{}
 	for rows.Next() {
 		user := entity.User{}
 		err = rows.Scan(
-			&user.ID, &user.Login, &user.Password, &user.FirstName, &user.LastName, &user.Sex, &user.CityId)
+			&user.ID, &user.Login, &user.FirstName, &user.LastName, &user.Age, &user.Sex, &user.CityId)
 		if err != nil {
 			handler.ErrorLog(err)
 			return userList, err
 		}
-		userList[user.ID] = user
+		userList = append(userList, user)
 	}
 	return userList, err
 }
@@ -53,6 +54,7 @@ func InsertUser(user *entity.User, transaction *sql.Tx) error {
 	sqlResult, err := transaction.Exec(sqlQuery,
 		user.Login, password, user.FirstName, user.LastName, user.Age, user.Sex, user.CityId)
 	if err != nil {
+		handler.ErrorLog(err)
 		return err
 	}
 
@@ -65,37 +67,16 @@ func InsertUser(user *entity.User, transaction *sql.Tx) error {
 	return nil
 }
 
-func UpdateUser(user *entity.User) error {
-	connect, err :=  database.GetConnection()
-	if err != nil {
-		handler.ErrorLog(err)
-		return err
-	}
-	transaction, err := connect.Begin()
-	if err != nil {
-		handler.ErrorLog(err)
-		return err
-	}
-	password := convert.StringToMd5(user.Password)
+func UpdateUser(user *entity.User, transaction *sql.Tx) (err error) {
 	sqlQuery :=
-		"UPDATE user SET login = ?, password = ?, first_name = ?, last_name = ?, age = ?, sex = ?, city_id = ?) " +
-		"WHERE id = ?"
+		"UPDATE user SET first_name = ?, last_name = ?, age = ?, sex = ?, city_id = ? WHERE id = ?"
 	_, err = transaction.Exec(sqlQuery,
-		user.Login, password, user.FirstName, user.LastName, user.Age, user.Sex, user.CityId, user.ID)
+		user.FirstName, user.LastName, user.Age, user.Sex, user.CityId, user.ID)
 	if err != nil {
 		handler.ErrorLog(err)
-		handler.ErrorLog(transaction.Rollback())
 		return err
 	}
 
-	_, err = transaction.Exec("DELETE FROM user_interest WHERE user_id = ?", user.ID)
-	if err != nil {
-		handler.ErrorLog(err)
-		handler.ErrorLog(transaction.Rollback())
-		return err
-	}
-
-	handler.ErrorLog(transaction.Commit())
 	return nil
 }
 
@@ -134,4 +115,50 @@ func GetUserById(userId int) (user entity.User, err error) {
 		}
 	}
 	return user, err
+}
+
+func GetUserCityList(userList []entity.User) (cityList map[int]entity.City, err error) {
+	cityList = make(map[int]entity.City)
+	if len(userList) > 0 {
+		cityIdList := getUserCityIdList(userList)
+		if len(cityIdList) > 0 {
+			cityIdPlaceList := convert.IntListToQueryParameterPlaceList(cityIdList)
+			cityIdListQuery := strings.Join(cityIdPlaceList, ",")
+			sqlQuery := fmt.Sprintf("SELECT id, name FROM city WHERE id IN (%s)", cityIdListQuery)
+			rows, err := database.Query(sqlQuery, convert.IntListToInterfaceList(cityIdList)...)
+			if err != nil {
+				handler.ErrorLog(err)
+				return nil, err
+			}
+			for rows.Next() {
+				city := entity.City{}
+				err = rows.Scan(&city.ID, &city.Name)
+				if err != nil {
+					handler.ErrorLog(err)
+					return cityList, err
+				}
+				cityList[city.ID] = city
+			}
+		}
+
+
+	}
+	return cityList, err
+}
+
+func getUserCityIdList(userList []entity.User) []int {
+	var cityIdList []int
+	if len(userList) > 0 {
+		cityIdMap := make(map[int]int)
+		for _, user := range userList {
+			if user.CityId.Valid {
+				cityId := int(user.CityId.Int64)
+				cityIdMap[cityId] = cityId
+			}
+		}
+		for _, cityId := range cityIdMap {
+			cityIdList = append(cityIdList, cityId)
+		}
+	}
+	return cityIdList
 }

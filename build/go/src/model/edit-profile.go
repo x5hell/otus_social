@@ -2,6 +2,7 @@ package model
 
 import (
 	"component/controllerResponse"
+	"component/database"
 	"component/handler"
 	"component/validation"
 	"database/sql"
@@ -29,21 +30,28 @@ func EditProfile(requestStruct EditProfileRequest) (fieldErrors map[string]error
 	if validationResult.ValidationResult {
 		userId, userAuthorized := GetUserId().(int)
 		if userAuthorized == false {
-			validationResult.FieldErrors[editProfileButton] = fmt.Errorf(controllerResponse.SessionExpiredMessage)
+			validationResult.FieldErrors[editProfileButton] = fmt.Errorf(controllerResponse.SessionExpiredErrorMessage)
 			return validationResult.FieldErrors
 		}
 		user, err := repository.GetUserById(userId)
 		if err != nil {
-			validationResult.FieldErrors[editProfileButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
-			handler.ErrorLog(err)
-			return validationResult.FieldErrors
+			return FormFieldServerError(validationResult, err, editProfileButton)
+		}
+		transaction, err := database.GetTransaction()
+		if err != nil {
+			return FormFieldServerErrorWithRollback(transaction, validationResult, err, editProfileButton)
 		}
 		user = changeUserEntity(requestStruct, user)
-		err = repository.UpdateUser(&user)
+		err = repository.UpdateUser(&user, transaction)
 		if err != nil {
-			validationResult.FieldErrors[editProfileButton] = fmt.Errorf(controllerResponse.ServerErrorMessage)
-			handler.ErrorLog(err)
+			return FormFieldServerErrorWithRollback(transaction, validationResult, err, editProfileButton)
 		}
+		userInterestEntityList := BuildUserInterestEntityList(requestStruct.Interests, user.ID)
+		err = repository.UpdateUserInterestEntityList(user.ID, userInterestEntityList, transaction)
+		if err != nil {
+			return FormFieldServerErrorWithRollback(transaction, validationResult, err, editProfileButton)
+		}
+		handler.ErrorLog(transaction.Commit())
 		return validationResult.FieldErrors
 	} else {
 		return validationResult.FieldErrors

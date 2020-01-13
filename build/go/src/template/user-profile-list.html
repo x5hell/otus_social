@@ -4,24 +4,28 @@
     {{range .Users}}
         <div class="dropdown-divider col-sm-8"></div>
         <p class="row">
-            <b class="col-sm-4">Имя:*</b>
-            <span class="col-sm-4"{{.FirstName}}></span>
+            <b class="col-sm-4">Имя:</b>
+            <span class="col-sm-4">{{.FirstName}}</span>
         </p>
         <p class="row">
-            <b class="col-sm-4">Фамилия:*</b>
+            <b class="col-sm-4">Фамилия:</b>
             <span class="col-sm-4">{{.LastName}}</span>
         </p>
         <p class="row">
-            <b class="col-sm-4">Возраст:*</b>
+            <b class="col-sm-4">Возраст:</b>
             <span class="col-sm-4">{{.Age}}</span>
         </p>
         <p class="row">
             <b class="col-sm-4">Пол:</b>
-            <span class="col-sm-4">{{.Sex}}</span>
+            <span class="col-sm-4">
+                {{if eq .Sex.String "female"}}женский
+                {{else if eq .Sex.String "male"}}мужской
+                {{else}}не указан
+                {{end}}</span>
         </p>
         <p class="row">
             <b class="col-sm-4">Город:</b>
-            <span class="col-sm-4">{{.CityId}}</span>
+            <span class="col-sm-4">{{(index $.CityList .CityId.Int64).Name}}</span>
         </p>
         <div class="dropdown-divider col-sm-8"></div>
     {{end}}

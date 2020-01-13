@@ -11,20 +11,20 @@ import (
 func EditProfileForm(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("edit-profile-form.html")
 	if err != nil {
-		fmt.Fprintf(response, "error: %v", err)
+		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
 		userId, userAuthorized := model.GetUserId().(int)
 		if userAuthorized == false {
-			fmt.Fprintf(response, controllerResponse.SessionExpiredMessage)
+			controllerResponse.SessionExpiredError(response, fmt.Errorf(controllerResponse.SessionExpiredErrorMessage))
 		} else {
 			data, err := model.GetEditProfileFormData(userId)
 			if err != nil {
-				fmt.Fprintf(response, "error: %v", err)
+				controllerResponse.GetTemplateDataError(response, err)
 			} else {
-				htmlTemplate.
+				err = htmlTemplate.
 					ExecuteTemplate(response, template.LayoutName, data)
+				controllerResponse.TemplateFillError(response, err)
 			}
 		}
-
 	}
 }

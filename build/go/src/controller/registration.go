@@ -2,9 +2,9 @@ package controller
 
 import (
 	"component/controllerResponse"
-	"fmt"
 	"model"
 	"net/http"
+	"strconv"
 )
 
 func Registration(response http.ResponseWriter, request *http.Request)  {
@@ -15,7 +15,7 @@ func registrationAction(response http.ResponseWriter, request *http.Request){
 	requestStruct := createRegistrationRequest(request)
 	userId, fieldErrors := model.Registration(requestStruct)
 	if userId > 0 {
-		controllerResponse.JsonOkMessage(fmt.Sprintf("%d", userId), response)
+		controllerResponse.JsonOkMessage(strconv.Itoa(userId), response)
 	} else {
 		controllerResponse.JsonFormError(fieldErrors, response)
 	}

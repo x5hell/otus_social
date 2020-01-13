@@ -1,30 +1,27 @@
 package controller
 
 import (
+	"component/controllerResponse"
 	"component/template"
-	"entity"
+	"model"
 	"net/http"
-	"repository"
 )
 
 const UserProfileListLimit = 10
 
-type LastUserProfileLIst struct {
-	Users map[int]entity.User
-}
-
 func UserProfileList(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("user-profile-list.html")
 	if err != nil {
-		panic(err)
+		controllerResponse.TemplateGeneratingError(response, err)
+	} else {
+		data, err := model.GetUserProfileListData(UserProfileListLimit)
+		if err != nil {
+			controllerResponse.GetTemplateDataError(response, err)
+		}
+		err = htmlTemplate.ExecuteTemplate(response, template.LayoutName, data)
+		if err != nil {
+			controllerResponse.TemplateFillError(response, err)
+		}
 	}
-	lastUsers, err := repository.GetLastUsers(UserProfileListLimit)
-	if err != nil {
-		panic(err)
-	}
-	data := LastUserProfileLIst{Users: lastUsers}
-	err = htmlTemplate.ExecuteTemplate(response, template.LayoutName, data)
-	if err != nil {
-		panic(err)
-	}
+
 }

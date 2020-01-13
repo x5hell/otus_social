@@ -1,16 +1,17 @@
 package controller
 
 import (
+	"component/controllerResponse"
 	"component/template"
-	"fmt"
 	"net/http"
 )
 
 func LoginForm(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("login-form.html")
 	if err != nil {
-		fmt.Fprintf(response, "error: %v", err)
+		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
-		htmlTemplate.ExecuteTemplate(response, template.LayoutName, nil)
+		err = htmlTemplate.ExecuteTemplate(response, template.LayoutName, nil)
+		controllerResponse.TemplateFillError(response, err)
 	}
 }

@@ -1,6 +1,7 @@
 package controllerResponse
 
 import (
+	"component/handler"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -11,7 +12,10 @@ const FieldTagName = "name"
 const FieldTagValidation = "validation"
 
 const ServerErrorMessage = "ошибка на стороне сервера"
-const SessionExpiredMessage = "сессия закончилась войдите снова"
+const SessionExpiredErrorMessage = "сессия закончилась войдите снова"
+const TemplateGeneratingErrorMessage = "ошибка формирования шаблона"
+const TemplateFillErrorMessage = "ошибка заполнения шаблона данными"
+const GetTemplateDataErrorMessage = "ошибка получения данных для шаблона"
 
 type ErrorMessage struct {
 	Error string `json:"error"`
@@ -85,4 +89,25 @@ func ParseRequest (response http.ResponseWriter, request *http.Request, method s
 				fmt.Sprintf("запрос типа '%s' не поддерживается", request.Method),
 				response)
 		}
+}
+
+func showErrorMessage(response http.ResponseWriter, err error, errorMessage string) {
+	handler.ErrorLog(err)
+	_, _ = fmt.Fprintf(response, errorMessage)
+}
+
+func TemplateGeneratingError(response http.ResponseWriter, err error)  {
+	showErrorMessage(response, err, TemplateGeneratingErrorMessage)
+}
+
+func TemplateFillError(response http.ResponseWriter, err error)  {
+	showErrorMessage(response, err, TemplateFillErrorMessage)
+}
+
+func GetTemplateDataError(response http.ResponseWriter, err error)  {
+	showErrorMessage(response, err, GetTemplateDataErrorMessage)
+}
+
+func SessionExpiredError(response http.ResponseWriter, err error)  {
+	showErrorMessage(response, err, SessionExpiredErrorMessage)
 }

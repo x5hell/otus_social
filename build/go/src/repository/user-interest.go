@@ -22,10 +22,20 @@ func InsertUserInterestEntityList(userInterestsList []entity.UserInterest, trans
 			strings.Join(queryParametersPlaceholder, ", "))
 		_, err = transaction.Exec(sqlQuery, convert.IntListToInterfaceList(queryParameters)...)
 		if err != nil {
+			handler.ErrorLog(err)
 			return err
 		}
 	}
 	return nil
+}
+
+func UpdateUserInterestEntityList(userId int, userInterestsList []entity.UserInterest, transaction *sql.Tx) (err error) {
+	_, err = transaction.Exec("DELETE FROM user_interest WHERE user_id = ?", userId)
+	if err != nil {
+		handler.ErrorLog(err)
+		return err
+	}
+	return InsertUserInterestEntityList(userInterestsList, transaction)
 }
 
 func GetInterestToUser(userId int) (interestToUser map[int]int, err error) {

@@ -32,15 +32,15 @@
         <p class="row">
             <label class="col-sm-4" for="interests">Интересы:</label>
             <select class="col-sm-4 validation-element" id="interests" multiple name="interests">
-                {{range .InterestList}}<option value="{{.ID}}" {{if (index $.InterestToUser .ID)}}selected{{end}}>{{.Name}}</option>
+                {{range .InterestList}}<option value="{{.ID}}" {{if index $.InterestToUser .ID}}selected{{end}}>{{.Name}}</option>
                 {{end}}
             </select>
         </p>
         <p class="row">
             <label class="col-sm-4" for="city">Город:</label>
-            <select class="col-sm-4 validation-element" id="city">
-                <option value="">Не указан</option>
-                {{range .CityList}}<option value="{{.ID}}" {{if $.User.CityId.Int64 eq .ID}}selected{{end}}>{{.Name}}</option>
+            <select class="col-sm-4 validation-element" id="city" name="city">
+                <option value="" {{if ne .UserCityId 0}}selected{{end}}>Не указан</option>
+                {{range .CityList}}<option value="{{.ID}}" {{if eq $.UserCityId .ID}}selected{{end}}>{{.Name}}</option>
                 {{end}}
             </select>
         </p>
