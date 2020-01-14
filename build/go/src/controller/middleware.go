@@ -43,3 +43,8 @@ func UseSession(response http.ResponseWriter, request *http.Request) bool {
 	model.InitSession(response, request)
 	return true
 }
+
+func RedirectMainPage(response http.ResponseWriter, request *http.Request) bool {
+	http.Redirect(response, request, "/user-profile-list", 301)
+	return false
+}

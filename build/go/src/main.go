@@ -37,5 +37,8 @@ func main()  {
 	mux.HandleFunc("/edit-profile", controller.Middleware(
 		controller.EditProfile, controller.UseSession))
 
+	mux.HandleFunc("/", controller.Middleware(
+		nil, controller.RedirectMainPage))
+
 	log.Fatal(http.ListenAndServe("0.0.0.0:" + AppPort, mux))
 }
