@@ -5,11 +5,7 @@
         <div class="dropdown-divider col-sm-8"></div>
         <p class="row">
             <b class="col-sm-4">Имя:</b>
-            <span class="col-sm-4">{{.FirstName}}</span>
-        </p>
-        <p class="row">
-            <b class="col-sm-4">Фамилия:</b>
-            <span class="col-sm-4">{{.LastName}}</span>
+            <span class="col-sm-4"><a href="/user-profile-page?id={{.ID}}">{{.FirstName}} {{.LastName}}</a></span>
         </p>
         <p class="row">
             <b class="col-sm-4">Возраст:</b>
@@ -23,10 +19,12 @@
                 {{else}}не указан
                 {{end}}</span>
         </p>
-        <p class="row">
-            <b class="col-sm-4">Город:</b>
-            <span class="col-sm-4">{{(index $.CityList .CityId.Int64).Name}}</span>
-        </p>
+        {{if .CityId.Valid}}
+            <p class="row">
+                <b class="col-sm-4">Город:</b>
+                <span class="col-sm-4">{{(index $.CityList .CityId.Int64).Name}}</span>
+            </p>
+        {{end}}
         {{if index $.UserIdToInterestList .ID}}
             <p class="row">
                 <b class="col-sm-4">Интересы:</b>

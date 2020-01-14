@@ -1,7 +1,7 @@
-{{define "title"}}Анкета пользователя {{ .User.FirstName}} {{ .User.LastName}} {{end}}
+{{define "title"}}Анкета {{ .User.FirstName}} {{ .User.LastName}}{{end}}
 
 {{define "content"}}
-    <h1>Анкета пользователя {{ .User.FirstName}} {{ .User.LastName}}</h1>
+    <h1>Анкета {{ .User.FirstName}} {{ .User.LastName}}</h1>
     <div class="dropdown-divider col-sm-8"></div>
     <p class="row">
         <b class="col-sm-4">Имя:</b>
@@ -23,16 +23,18 @@
             {{else}}не указан
             {{end}}</span>
     </p>
-    <p class="row">
-        <b class="col-sm-4">Город:</b>
-        <span class="col-sm-4">{{(index $.CityList .User.CityId.Int64).Name}}</span>
-    </p>
-    {{if index $.UserIdToInterestList .ID}}
+    {{if .City}}
+        <p class="row">
+            <b class="col-sm-4">Город:</b>
+            <span class="col-sm-4">{{.City.Name}}</span>
+        </p>
+    {{end}}
+    {{if .InterestList}}
         <p class="row">
             <b class="col-sm-4">Интересы:</b>
             <span class="col-sm-4">
                 /
-                {{range index $.UserIdToInterestList .ID}}
+                {{range .InterestList}}
                     «{{.Name}}» /
                 {{end}}
             </span>

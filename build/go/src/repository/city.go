@@ -89,3 +89,13 @@ func getUserCityIdList(userList []entity.User) []int {
 	}
 	return cityIdList
 }
+
+func GetUserCity(user entity.User) (city entity.City, err error) {
+	cityList, err := GetUserCityList([]entity.User{user})
+	if err != nil {
+		return city, nil
+	}
+	cityId := int(user.CityId.Int64)
+	city = cityList[cityId]
+	return city, nil
+}

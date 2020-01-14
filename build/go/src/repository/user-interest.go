@@ -89,3 +89,12 @@ func GetUserIdToInterestList(userList []entity.User) (userIdToInterestList map[i
 	}
 	return userIdToInterestList, nil
 }
+
+func GetUserInterestList(user entity.User) (interestList []entity.Interest, err error) {
+	userIdToInterestList, err := GetUserIdToInterestList([]entity.User{user})
+	if err != nil {
+		return interestList, nil
+	}
+	interestList = userIdToInterestList[user.ID]
+	return interestList, nil
+}

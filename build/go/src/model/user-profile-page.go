@@ -10,28 +10,34 @@ import (
 	"strconv"
 )
 
-const UserProfilePageFieldNameUserId = "userId"
+const UserProfilePageFieldNameUserId = "id"
 
 type UserProfilePageRequest struct {
 	UserId string   `name:"UserProfilePageFieldNameUserId" validation:"required,isInt,digitMin=1"`
 }
 
 type UserProfilePage struct {
-	Users			entity.User
-	City    		entity.City
-	InterestList 	[]entity.Interest
+	User         entity.User
+	City         entity.City
+	InterestList []entity.Interest
 }
 
-func GetUserProfilePageData(requestStruct UserProfilePageRequest) (userProfilePage UserProfilePage, err error) {
+func GetUserProfilePageData(requestStruct UserProfilePageRequest) (data UserProfilePage, err error) {
 	validationResult := ValidateUserProfilePageRequest(requestStruct)
 	if validationResult {
 		user, err := GetUserId(requestStruct.UserId)
 		if err != nil {
-			return userProfilePage, err
+			return data, err
 		}
-		userProfilePage.Users = user
+		data.User = user
+		data.City, err = repository.GetUserCity(data.User)
+		if err != nil {
+			return data, err
+		}
+		data.InterestList, err = repository.GetUserInterestList(data.User)
+		return data, err
 	}
-	return userProfilePage, fmt.Errorf(controllerResponse.PageNotFoundErrorMessage)
+	return data, fmt.Errorf(controllerResponse.PageNotFoundErrorMessage)
 }
 
 func GetUserProfilePageRequestAliasList() map[string]string {

@@ -8,6 +8,10 @@ import (
 )
 
 func UserProfilePage(response http.ResponseWriter, request *http.Request) {
+	controllerResponse.ParseRequest(response, request, "GET", UserProfilePageAction)
+}
+
+func UserProfilePageAction(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("user-profile-page.html")
 	if err != nil {
 		controllerResponse.TemplateGeneratingError(response, err)
