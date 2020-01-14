@@ -16,6 +16,7 @@ const SessionExpiredErrorMessage = "сессия закончилась войд
 const TemplateGeneratingErrorMessage = "ошибка формирования шаблона"
 const TemplateFillErrorMessage = "ошибка заполнения шаблона данными"
 const GetTemplateDataErrorMessage = "ошибка получения данных для шаблона"
+const PageNotFoundErrorMessage = "страница не найдена"
 
 type ErrorMessage struct {
 	Error string `json:"error"`

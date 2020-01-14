@@ -16,6 +16,9 @@ func main()  {
 	mux.HandleFunc("/user-profile-list", controller.Middleware(
 		controller.UserProfileList, controller.UseSession))
 
+	mux.HandleFunc("/user-profile-page", controller.Middleware(
+		controller.UserProfilePage, controller.UseSession))
+
 	mux.HandleFunc("/registration-form", controller.Middleware(
 		controller.RegistrationForm, controller.UseSession, controller.AuthorizedMiddleware))
 	mux.HandleFunc("/registration", controller.Middleware(

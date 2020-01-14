@@ -17,7 +17,9 @@ func RegistrationForm(response http.ResponseWriter, request *http.Request)  {
 			controllerResponse.GetTemplateDataError(response, err)
 		} else {
 			err = htmlTemplate.ExecuteTemplate(response, template.LayoutName, data)
-			controllerResponse.TemplateFillError(response, err)
+			if err != nil {
+				controllerResponse.TemplateFillError(response, err)
+			}
 		}
 	}
 }

@@ -1,0 +1,44 @@
+{{define "title"}}Анкета пользователя {{ .User.FirstName}} {{ .User.LastName}} {{end}}
+
+{{define "content"}}
+    <h1>Анкета пользователя {{ .User.FirstName}} {{ .User.LastName}}</h1>
+    <div class="dropdown-divider col-sm-8"></div>
+    <p class="row">
+        <b class="col-sm-4">Имя:</b>
+        <span class="col-sm-4">{{.User.FirstName}}</span>
+    </p>
+    <p class="row">
+        <b class="col-sm-4">Фамилия:</b>
+        <span class="col-sm-4">{{.User.LastName}}</span>
+    </p>
+    <p class="row">
+        <b class="col-sm-4">Возраст:</b>
+        <span class="col-sm-4">{{.User.Age}}</span>
+    </p>
+    <p class="row">
+        <b class="col-sm-4">Пол:</b>
+        <span class="col-sm-4">
+            {{if eq .User.Sex.String "female"}}женский
+            {{else if eq .User.Sex.String "male"}}мужской
+            {{else}}не указан
+            {{end}}</span>
+    </p>
+    <p class="row">
+        <b class="col-sm-4">Город:</b>
+        <span class="col-sm-4">{{(index $.CityList .User.CityId.Int64).Name}}</span>
+    </p>
+    {{if index $.UserIdToInterestList .ID}}
+        <p class="row">
+            <b class="col-sm-4">Интересы:</b>
+            <span class="col-sm-4">
+                /
+                {{range index $.UserIdToInterestList .ID}}
+                    «{{.Name}}» /
+                {{end}}
+            </span>
+        </p>
+    {{end}}
+    <div class="dropdown-divider col-sm-8"></div>
+{{end}}
+
+{{define "custom-scripts"}}{{end}}

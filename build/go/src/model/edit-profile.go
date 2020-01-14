@@ -28,7 +28,7 @@ type EditProfileRequest struct {
 func EditProfile(requestStruct EditProfileRequest) (fieldErrors map[string]error) {
 	validationResult := validateEditProfileRequest(requestStruct)
 	if validationResult.ValidationResult {
-		userId, userAuthorized := GetUserId().(int)
+		userId, userAuthorized := GetUserIdFromSession().(int)
 		if userAuthorized == false {
 			validationResult.FieldErrors[editProfileButton] = fmt.Errorf(controllerResponse.SessionExpiredErrorMessage)
 			return validationResult.FieldErrors

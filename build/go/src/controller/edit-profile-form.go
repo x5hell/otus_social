@@ -13,7 +13,7 @@ func EditProfileForm(response http.ResponseWriter, request *http.Request)  {
 	if err != nil {
 		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
-		userId, userAuthorized := model.GetUserId().(int)
+		userId, userAuthorized := model.GetUserIdFromSession().(int)
 		if userAuthorized == false {
 			controllerResponse.SessionExpiredError(response, fmt.Errorf(controllerResponse.SessionExpiredErrorMessage))
 		} else {
@@ -23,7 +23,9 @@ func EditProfileForm(response http.ResponseWriter, request *http.Request)  {
 			} else {
 				err = htmlTemplate.
 					ExecuteTemplate(response, template.LayoutName, data)
-				controllerResponse.TemplateFillError(response, err)
+				if err != nil {
+					controllerResponse.TemplateFillError(response, err)
+				}
 			}
 		}
 	}

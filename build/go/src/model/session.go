@@ -28,11 +28,11 @@ func GetSessionData() session.Session {
 	return sessionData
 }
 
-func GetUserId() interface{} {
+func GetUserIdFromSession() interface{} {
 	return GetSessionData().Get(UserIdName)
 }
 
 func Authorized() bool {
-	return GetUserId() != nil
+	return GetUserIdFromSession() != nil
 }
 

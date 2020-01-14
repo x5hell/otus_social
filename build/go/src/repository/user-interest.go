@@ -57,3 +57,35 @@ func GetInterestToUser(userId int) (interestToUser map[int]int, err error) {
 	}
 	return interestToUser, err
 }
+
+func GetUserIdToInterestList(userList []entity.User) (userIdToInterestList map[int][]entity.Interest, err error) {
+	userIdToInterestList = make(map[int][]entity.Interest)
+	if len(userList) > 0 {
+		userIdList := GetUserIdsFromUserList(userList)
+		userIdPlaceList := convert.IntListToQueryParameterPlaceList(userIdList)
+		userIdListQuery := strings.Join(userIdPlaceList, ",")
+		sqlQuery := fmt.Sprintf(
+			"SELECT ui.user_id, ui.interest_id, i.name FROM user_interest ui " +
+				"INNER JOIN interest i ON (ui.interest_id = i.id) " +
+				"WHERE ui.user_id IN (%s)", userIdListQuery)
+		rows, err := database.Query(sqlQuery, convert.IntListToInterfaceList(userIdList)...)
+		if err != nil {
+			handler.ErrorLog(err)
+			return nil, err
+		}
+		for rows.Next() {
+			var userId int
+			if _, userIdInterestListExists := userIdToInterestList[userId]; userIdInterestListExists == false {
+				userIdToInterestList[userId] = []entity.Interest{}
+			}
+			interest := entity.Interest{}
+			err = rows.Scan(&userId, &interest.ID, &interest.Name)
+			if err != nil {
+				handler.ErrorLog(err)
+				return userIdToInterestList, err
+			}
+			userIdToInterestList[userId] = append(userIdToInterestList[userId], interest)
+		}
+	}
+	return userIdToInterestList, nil
+}
