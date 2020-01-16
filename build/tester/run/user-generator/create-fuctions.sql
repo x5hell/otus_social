@@ -480,12 +480,22 @@ NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(6);
-    SELECT CEIL(RAND()*2) INTO num;
-    IF sex = NULL THEN SELECT sex_generator() INTO sex;
-    END IF;
     CASE sex
         WHEN 'male' THEN SELECT male_firstname() INTO result;
         WHEN 'female' THEN SELECT female_firstname() INTO result;
+    END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS lastname_generator;
+CREATE FUNCTION lastname_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(6);
+    CASE sex
+        WHEN 'male' THEN SELECT male_lastname() INTO result;
+        WHEN 'female' THEN SELECT female_lastname() INTO result;
     END CASE;
     RETURN result;
 END$$
