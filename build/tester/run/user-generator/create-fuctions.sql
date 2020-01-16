@@ -1,30 +1,34 @@
-DELIMITER //
+DELIMITER $$
 
 DROP FUNCTION IF EXISTS num_to_sex;
 CREATE FUNCTION num_to_sex (num INT) RETURNS VARCHAR(6) 
+DETERMINISTIC
 BEGIN
-    DECLARE num INT;
     DECLARE result VARCHAR(6);
     CASE num
         WHEN 1 THEN SET result = 'male';
         WHEN 2 THEN SET result = 'female';
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DROP FUNCTION IF EXISTS sex_generator;
 CREATE FUNCTION sex_generator () RETURNS VARCHAR(6)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(6);
     SELECT CEIL(RAND()*3) INTO num;
     CASE num
-        WHEN 3 SET result = null;
+        WHEN 3 THEN SET result = null;
         ELSE SET result = num_to_sex(num);
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DROP FUNCTION IF EXISTS male_lastname;
 CREATE FUNCTION male_lastname () RETURNS VARCHAR(25)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(50);
@@ -130,12 +134,13 @@ BEGIN
         WHEN 98 THEN SET result = 'Казаков';
         WHEN 99 THEN SET result = 'Елисеев';
         WHEN 100 THEN SET result = 'Евсеев';
-        ELSE SET result = null;
     END CASE;
-END //
+    RETURN result;
+END $$
 
 DROP FUNCTION IF EXISTS male_firstname;
-CREATE FUNCTION male_firstname () RETURNS VARCHAR(25)
+CREATE FUNCTION male_firstname() RETURNS VARCHAR(25)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(50);
@@ -241,15 +246,16 @@ BEGIN
         WHEN 98 THEN SET result = 'Спартак';
         WHEN 99 THEN SET result = 'Лев';
         WHEN 100 THEN SET result = 'Алмаз';
-        ELSE SET result = null;
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DROP FUNCTION IF EXISTS female_lastname;
 CREATE FUNCTION female_lastname () RETURNS VARCHAR(25)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
-    DECLARE result VARCHAR(50);
+    DECLARE result VARCHAR(25);
     SELECT CEIL(RAND()*100) INTO num;
     CASE num
         WHEN 1 THEN SET result = 'Ширяева';
@@ -352,15 +358,16 @@ BEGIN
         WHEN 98 THEN SET result = 'Константинова';
         WHEN 99 THEN SET result = 'Одинцова';
         WHEN 100 THEN SET result = 'Рыжих';
-        ELSE SET result = null;
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DROP FUNCTION IF EXISTS female_firstname;
 CREATE FUNCTION female_firstname () RETURNS VARCHAR(25)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
-    DECLARE result VARCHAR(50);
+    DECLARE result VARCHAR(25);
     SELECT CEIL(RAND()*100) INTO num;
     CASE num
         WHEN 1 THEN SET result = 'Таисия';
@@ -463,21 +470,24 @@ BEGIN
         WHEN 98 THEN SET result = 'Йосифа';
         WHEN 99 THEN SET result = 'Цилла';
         WHEN 100 THEN SET result = 'Елизавета';
-        ELSE SET result = null;
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DROP FUNCTION IF EXISTS firstname_generator;
-CREATE FUNCTION firstname_generator (sex VARCHAR(6)) RETURNS VARCHAR(25)
+CREATE FUNCTION firstname_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(6);
     SELECT CEIL(RAND()*2) INTO num;
-    IF sex = NULL THEN SET sex = sex_generator()
+    IF sex = NULL THEN SELECT sex_generator() INTO sex;
+    END IF;
     CASE sex
-        WHEN 'male' THEN SET result = male_firstname();
-        WHEN 'female' THEN SET result = female_firstname();
+        WHEN 'male' THEN SELECT male_firstname() INTO result;
+        WHEN 'female' THEN SELECT female_firstname() INTO result;
     END CASE;
-END //
+    RETURN result;
+END$$
 
 DELIMITER ;
