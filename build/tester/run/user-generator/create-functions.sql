@@ -1,8 +1,8 @@
 SET GLOBAL log_bin_trust_function_creators = 1;
 DELIMITER $$
 
-DROP FUNCTION IF EXISTS num_to_sex;
-CREATE FUNCTION num_to_sex (num INT) RETURNS VARCHAR(6) 
+
+CREATE FUNCTION num_to_sex (num INT) RETURNS VARCHAR(6)
 DETERMINISTIC
 BEGIN
     DECLARE result VARCHAR(6);
@@ -13,7 +13,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS sex_generator;
 CREATE FUNCTION sex_generator () RETURNS VARCHAR(6)
 NOT DETERMINISTIC
 BEGIN
@@ -27,7 +26,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS male_last_name;
 CREATE FUNCTION male_last_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
@@ -139,7 +137,6 @@ BEGIN
     RETURN result;
 END $$
 
-DROP FUNCTION IF EXISTS male_first_name;
 CREATE FUNCTION male_first_name() RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
@@ -251,7 +248,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS female_last_name;
 CREATE FUNCTION female_last_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
@@ -363,7 +359,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS female_first_name;
 CREATE FUNCTION female_first_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
@@ -475,7 +470,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS first_name_generator;
 CREATE FUNCTION first_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
 NOT DETERMINISTIC
 BEGIN
@@ -487,7 +481,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS last_name_generator;
 CREATE FUNCTION last_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
 NOT DETERMINISTIC
 BEGIN
@@ -499,7 +492,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_place_type;
 CREATE FUNCTION generate_place_type () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -523,7 +515,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_name_form_1;
 CREATE FUNCTION generate_city_name_form_1 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -560,7 +551,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_part_form_1;
 CREATE FUNCTION generate_city_part_form_1 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -582,7 +572,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_name_form_2;
 CREATE FUNCTION generate_city_name_form_2 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -619,7 +608,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_part_form_2;
 CREATE FUNCTION generate_city_part_form_2 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -641,7 +629,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_name_form_3;
 CREATE FUNCTION generate_city_name_form_3 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -678,7 +665,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_part_form_3;
 CREATE FUNCTION generate_city_part_form_3 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -700,7 +686,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_name_form_4;
 CREATE FUNCTION generate_city_name_form_4 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -737,7 +722,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_part_form_4;
 CREATE FUNCTION generate_city_part_form_4 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -759,7 +743,6 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS generate_city_name;
 CREATE FUNCTION generate_city_name () RETURNS VARCHAR(50)
     NOT DETERMINISTIC
 BEGIN
@@ -781,18 +764,37 @@ BEGIN
     RETURN result;
 END$$
 
-DROP PROCEDURE IF EXISTS drop_last_cities;
-CREATE PROCEDURE drop_last_cities (num INT)
+CREATE PROCEDURE generate_cities (quantity INT)
 BEGIN
-    CREATE TEMPORARY TABLE IF NOT EXISTS city_ids
-        AS SELECT id FROM city ORDER BY id DESC LIMIT num;
-    UPDATE user SET city_id = NULL WHERE city_id IN (
-        SELECT id FROM city_ids
-    );
-    DELETE FROM city WHERE id IN (
-        SELECT id FROM city_ids
-    );
+    DECLARE step INT;
+    SET step = 1;
+    WHILE step <= quantity DO
+        INSERT INTO city (`id`, `name`) VALUES (step, generate_city_name());
+        SET step = step + 1;
+    END WHILE;
 END$$
+
+CALL generate_cities(100000)$$
+
+DROP FUNCTION IF EXISTS num_to_sex$$
+DROP FUNCTION IF EXISTS sex_generator$$
+DROP FUNCTION IF EXISTS male_last_name$$
+DROP FUNCTION IF EXISTS male_first_name$$
+DROP FUNCTION IF EXISTS female_last_name$$
+DROP FUNCTION IF EXISTS female_first_name$$
+DROP FUNCTION IF EXISTS first_name_generator$$
+DROP FUNCTION IF EXISTS last_name_generator$$
+DROP FUNCTION IF EXISTS generate_place_type$$
+DROP FUNCTION IF EXISTS generate_city_name_form_1$$
+DROP FUNCTION IF EXISTS generate_city_part_form_1$$
+DROP FUNCTION IF EXISTS generate_city_name_form_2$$
+DROP FUNCTION IF EXISTS generate_city_part_form_2$$
+DROP FUNCTION IF EXISTS generate_city_name_form_3$$
+DROP FUNCTION IF EXISTS generate_city_part_form_3$$
+DROP FUNCTION IF EXISTS generate_city_name_form_4$$
+DROP FUNCTION IF EXISTS generate_city_part_form_4$$
+DROP FUNCTION IF EXISTS generate_city_name;
+DROP PROCEDURE IF EXISTS generate_cities;
 
 DELIMITER ;
 
