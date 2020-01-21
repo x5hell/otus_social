@@ -1,3 +1,4 @@
+SET GLOBAL log_bin_trust_function_creators = 1;
 DELIMITER $$
 
 DROP FUNCTION IF EXISTS num_to_sex;
@@ -26,8 +27,8 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS male_lastname;
-CREATE FUNCTION male_lastname () RETURNS VARCHAR(25)
+DROP FUNCTION IF EXISTS male_last_name;
+CREATE FUNCTION male_last_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
@@ -138,12 +139,12 @@ BEGIN
     RETURN result;
 END $$
 
-DROP FUNCTION IF EXISTS male_firstname;
-CREATE FUNCTION male_firstname() RETURNS VARCHAR(25)
+DROP FUNCTION IF EXISTS male_first_name;
+CREATE FUNCTION male_first_name() RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
-    DECLARE result VARCHAR(50);
+    DECLARE result VARCHAR(25);
     SELECT CEIL(RAND()*100) INTO num;
     CASE num
         WHEN 1 THEN SET result = 'Платон';
@@ -250,8 +251,8 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS female_lastname;
-CREATE FUNCTION female_lastname () RETURNS VARCHAR(25)
+DROP FUNCTION IF EXISTS female_last_name;
+CREATE FUNCTION female_last_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
@@ -362,8 +363,8 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS female_firstname;
-CREATE FUNCTION female_firstname () RETURNS VARCHAR(25)
+DROP FUNCTION IF EXISTS female_first_name;
+CREATE FUNCTION female_first_name () RETURNS VARCHAR(25)
 NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
@@ -474,30 +475,324 @@ BEGIN
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS firstname_generator;
-CREATE FUNCTION firstname_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+DROP FUNCTION IF EXISTS first_name_generator;
+CREATE FUNCTION first_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
 NOT DETERMINISTIC
 BEGIN
-    DECLARE num INT;
     DECLARE result VARCHAR(6);
     CASE sex
-        WHEN 'male' THEN SELECT male_firstname() INTO result;
-        WHEN 'female' THEN SELECT female_firstname() INTO result;
+        WHEN 'male' THEN SELECT male_first_name() INTO result;
+        WHEN 'female' THEN SELECT female_first_name() INTO result;
     END CASE;
     RETURN result;
 END$$
 
-DROP FUNCTION IF EXISTS lastname_generator;
-CREATE FUNCTION lastname_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+DROP FUNCTION IF EXISTS last_name_generator;
+CREATE FUNCTION last_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
 NOT DETERMINISTIC
 BEGIN
-    DECLARE num INT;
     DECLARE result VARCHAR(6);
     CASE sex
-        WHEN 'male' THEN SELECT male_lastname() INTO result;
-        WHEN 'female' THEN SELECT female_lastname() INTO result;
+        WHEN 'male' THEN SELECT male_last_name() INTO result;
+        WHEN 'female' THEN SELECT female_last_name() INTO result;
     END CASE;
     RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_place_type;
+CREATE FUNCTION generate_place_type () RETURNS VARCHAR(10)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(10);
+    SELECT CEIL(RAND()*12) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'город';
+        WHEN 2 THEN SET result = 'село';
+        WHEN 3 THEN SET result = 'деревня';
+        WHEN 4 THEN SET result = 'посёлок';
+        WHEN 5 THEN SET result = 'аул';
+        WHEN 6 THEN SET result = 'станица';
+        WHEN 7 THEN SET result = 'г';
+        WHEN 8 THEN SET result = 'с';
+        WHEN 9 THEN SET result = 'д';
+        WHEN 10 THEN SET result = 'п';
+        WHEN 11 THEN SET result = 'а';
+        WHEN 12 THEN SET result = 'с';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_name_form_1;
+CREATE FUNCTION generate_city_name_form_1 () RETURNS VARCHAR(25)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(25);
+    SELECT CEIL(RAND()*25) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Пупсы';
+        WHEN 2 THEN SET result = 'Дешевки';
+        WHEN 3 THEN SET result = 'Кокаиновые горы';
+        WHEN 4 THEN SET result = 'Ломки';
+        WHEN 5 THEN SET result = 'Черви';
+        WHEN 6 THEN SET result = 'Блювиничи';
+        WHEN 7 THEN SET result = 'Чуваки';
+        WHEN 8 THEN SET result = 'Блохи';
+        WHEN 9 THEN SET result = 'Козлы';
+        WHEN 10 THEN SET result = 'Опухлики';
+        WHEN 11 THEN SET result = 'Сувалки';
+        WHEN 12 THEN SET result = 'Гробы';
+        WHEN 13 THEN SET result = 'Хачики';
+        WHEN 14 THEN SET result = 'Ишаки';
+        WHEN 15 THEN SET result = 'Лужи';
+        WHEN 16 THEN SET result = 'Мочилки';
+        WHEN 17 THEN SET result = 'Лобки';
+        WHEN 18 THEN SET result = 'Пупки';
+        WHEN 19 THEN SET result = 'Кобеляки';
+        WHEN 20 THEN SET result = 'Бздюли';
+        WHEN 21 THEN SET result = 'Бобрики';
+        WHEN 22 THEN SET result = 'Мусорки';
+        WHEN 23 THEN SET result = 'Кончинки';
+        WHEN 24 THEN SET result = 'Бугры';
+        WHEN 25 THEN SET result = 'Лохи';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_part_form_1;
+CREATE FUNCTION generate_city_part_form_1 () RETURNS VARCHAR(10)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(10);
+    SELECT CEIL(RAND()*15) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Большие ';
+        WHEN 2 THEN SET result = 'Малые ';
+        WHEN 3 THEN SET result = 'Верхние ';
+        WHEN 4 THEN SET result = 'Нижние ';
+        WHEN 5 THEN SET result = 'Весёлые ';
+        WHEN 6 THEN SET result = 'Святые ';
+        WHEN 7 THEN SET result = 'Великие ';
+        WHEN 8 THEN SET result = 'Старые ';
+        WHEN 9 THEN SET result = 'Новые ';
+        ELSE SET result = '';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_name_form_2;
+CREATE FUNCTION generate_city_name_form_2 () RETURNS VARCHAR(25)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(25);
+    SELECT CEIL(RAND()*25) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Пысса';
+        WHEN 2 THEN SET result = 'Баклань';
+        WHEN 3 THEN SET result = 'Куриловка';
+        WHEN 4 THEN SET result = 'Балда';
+        WHEN 5 THEN SET result = 'Засосная';
+        WHEN 6 THEN SET result = 'Звероножка';
+        WHEN 7 THEN SET result = 'Вобля';
+        WHEN 8 THEN SET result = 'Мусорка';
+        WHEN 9 THEN SET result = 'Бухловка';
+        WHEN 10 THEN SET result = 'Коноплянка';
+        WHEN 11 THEN SET result = 'Мухоудёровка';
+        WHEN 12 THEN SET result = 'Кончинка';
+        WHEN 13 THEN SET result = 'Ушмары';
+        WHEN 14 THEN SET result = 'Лапша';
+        WHEN 15 THEN SET result = 'Щель';
+        WHEN 16 THEN SET result = 'Дешевка';
+        WHEN 17 THEN SET result = 'Ломка';
+        WHEN 18 THEN SET result = 'Блоха';
+        WHEN 19 THEN SET result = 'Сувалка';
+        WHEN 20 THEN SET result = 'Лужа';
+        WHEN 21 THEN SET result = 'Мочилка';
+        WHEN 22 THEN SET result = 'Бздюля';
+        WHEN 23 THEN SET result = 'Жаба';
+        WHEN 24 THEN SET result = 'Голодранка';
+        WHEN 25 THEN SET result = 'Хотелка';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_part_form_2;
+CREATE FUNCTION generate_city_part_form_2 () RETURNS VARCHAR(10)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(10);
+    SELECT CEIL(RAND()*15) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Большая ';
+        WHEN 2 THEN SET result = 'Малая ';
+        WHEN 3 THEN SET result = 'Верхняя ';
+        WHEN 4 THEN SET result = 'Нижняя ';
+        WHEN 5 THEN SET result = 'Весёлая ';
+        WHEN 6 THEN SET result = 'Святая ';
+        WHEN 7 THEN SET result = 'Великая ';
+        WHEN 8 THEN SET result = 'Старая ';
+        WHEN 9 THEN SET result = 'Новая ';
+        ELSE SET result = '';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_name_form_3;
+CREATE FUNCTION generate_city_name_form_3 () RETURNS VARCHAR(25)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(25);
+    SELECT CEIL(RAND()*25) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Куяш';
+        WHEN 2 THEN SET result = 'Сисковский';
+        WHEN 3 THEN SET result = 'Гадюшник';
+        WHEN 4 THEN SET result = 'Крыжополь';
+        WHEN 5 THEN SET result = 'Бугор';
+        WHEN 6 THEN SET result = 'Бобрик';
+        WHEN 7 THEN SET result = 'Усох';
+        WHEN 8 THEN SET result = 'Лох';
+        WHEN 9 THEN SET result = 'Мухосранск';
+        WHEN 10 THEN SET result = 'Пупс';
+        WHEN 11 THEN SET result = 'Червь';
+        WHEN 12 THEN SET result = 'Чувак';
+        WHEN 13 THEN SET result = 'Козёл';
+        WHEN 14 THEN SET result = 'Опухлик';
+        WHEN 15 THEN SET result = 'Гроб';
+        WHEN 16 THEN SET result = 'Хачик';
+        WHEN 17 THEN SET result = 'Ишак';
+        WHEN 18 THEN SET result = 'Лобок';
+        WHEN 19 THEN SET result = 'Пупок';
+        WHEN 20 THEN SET result = 'Кобеляка';
+        WHEN 21 THEN SET result = 'Трус';
+        WHEN 22 THEN SET result = 'Дурак';
+        WHEN 23 THEN SET result = 'Хрен';
+        WHEN 24 THEN SET result = 'Свин';
+        WHEN 25 THEN SET result = 'Мухоед';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_part_form_3;
+CREATE FUNCTION generate_city_part_form_3 () RETURNS VARCHAR(10)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(10);
+    SELECT CEIL(RAND()*15) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Большой ';
+        WHEN 2 THEN SET result = 'Малый ';
+        WHEN 3 THEN SET result = 'Верхний ';
+        WHEN 4 THEN SET result = 'Нижний ';
+        WHEN 5 THEN SET result = 'Весёлый ';
+        WHEN 6 THEN SET result = 'Святой ';
+        WHEN 7 THEN SET result = 'Великий ';
+        WHEN 8 THEN SET result = 'Старый ';
+        WHEN 9 THEN SET result = 'Новый ';
+        ELSE SET result = '';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_name_form_4;
+CREATE FUNCTION generate_city_name_form_4 () RETURNS VARCHAR(25)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(25);
+    SELECT CEIL(RAND()*25) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Лохово';
+        WHEN 2 THEN SET result = 'Струйкино';
+        WHEN 3 THEN SET result = 'Овнище';
+        WHEN 4 THEN SET result = 'Дно';
+        WHEN 5 THEN SET result = 'Трусово';
+        WHEN 6 THEN SET result = 'Ширяево';
+        WHEN 7 THEN SET result = 'Новопозорново';
+        WHEN 8 THEN SET result = 'Зачатье';
+        WHEN 9 THEN SET result = 'Дураково';
+        WHEN 10 THEN SET result = 'Муходоево';
+        WHEN 11 THEN SET result = 'Хреново';
+        WHEN 12 THEN SET result = 'Бухалово';
+        WHEN 13 THEN SET result = 'Жабино';
+        WHEN 14 THEN SET result = 'Кончинино';
+        WHEN 15 THEN SET result = 'Голодранкино';
+        WHEN 16 THEN SET result = 'Хотелово';
+        WHEN 17 THEN SET result = 'Бухалово';
+        WHEN 18 THEN SET result = 'Лобково';
+        WHEN 19 THEN SET result = 'Какино';
+        WHEN 20 THEN SET result = 'Отхожее';
+        WHEN 21 THEN SET result = 'Хренище ';
+        WHEN 22 THEN SET result = 'Матюково';
+        WHEN 23 THEN SET result = 'Пьянкино';
+        WHEN 24 THEN SET result = 'Свинорье';
+        WHEN 25 THEN SET result = 'Матюково';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_part_form_4;
+CREATE FUNCTION generate_city_part_form_4 () RETURNS VARCHAR(10)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE num INT;
+    DECLARE result VARCHAR(10);
+    SELECT CEIL(RAND()*15) INTO num;
+    CASE num
+        WHEN 1 THEN SET result = 'Большое ';
+        WHEN 2 THEN SET result = 'Малое ';
+        WHEN 3 THEN SET result = 'Верхнее ';
+        WHEN 4 THEN SET result = 'Нижнее ';
+        WHEN 5 THEN SET result = 'Весёлое ';
+        WHEN 6 THEN SET result = 'Святое ';
+        WHEN 7 THEN SET result = 'Великое ';
+        WHEN 8 THEN SET result = 'Старое ';
+        WHEN 9 THEN SET result = 'Новое ';
+        ELSE SET result = '';
+        END CASE;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS generate_city_name;
+CREATE FUNCTION generate_city_name () RETURNS VARCHAR(50)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE form INT;
+    DECLARE city_name VARCHAR(25);
+    DECLARE result VARCHAR(50);
+    SELECT CEIL(RAND()*4) INTO form;
+    CASE form
+        WHEN 1 THEN
+            SELECT CONCAT(generate_city_part_form_1(),  generate_city_name_form_1()) INTO city_name;
+        WHEN 2 THEN
+            SELECT CONCAT(generate_city_part_form_2(),  generate_city_name_form_2()) INTO city_name;
+        WHEN 3 THEN
+            SELECT CONCAT(generate_city_part_form_3(),  generate_city_name_form_3()) INTO city_name;
+        WHEN 4 THEN
+            SELECT CONCAT(generate_city_part_form_4(),  generate_city_name_form_4()) INTO city_name;
+        END CASE;
+    SELECT CONCAT(generate_place_type(), ' ', city_name)  INTO result;
+    RETURN result;
+END$$
+
+DROP PROCEDURE IF EXISTS drop_last_cities;
+CREATE PROCEDURE drop_last_cities (num INT)
+BEGIN
+    CREATE TEMPORARY TABLE IF NOT EXISTS city_ids
+        AS SELECT id FROM city ORDER BY id DESC LIMIT num;
+    UPDATE user SET city_id = NULL WHERE city_id IN (
+        SELECT id FROM city_ids
+    );
+    DELETE FROM city WHERE id IN (
+        SELECT id FROM city_ids
+    );
 END$$
 
 DELIMITER ;
+
