@@ -1,20 +1,40 @@
 SET GLOBAL log_bin_trust_function_creators = 1;
 DELIMITER $$
 
-
+DROP FUNCTION IF EXISTS num_to_sex$$
 CREATE FUNCTION num_to_sex (num INT) RETURNS VARCHAR(6)
-DETERMINISTIC
+    DETERMINISTIC
 BEGIN
     DECLARE result VARCHAR(6);
     CASE num
         WHEN 1 THEN SET result = 'male';
         WHEN 2 THEN SET result = 'female';
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS create_user_login$$
+CREATE FUNCTION create_user_login (num INT) RETURNS VARCHAR(6)
+    DETERMINISTIC
+BEGIN
+    DECLARE result VARCHAR(40);
+    SELECT CONCAT('login', num) INTO result;
+    RETURN result;
+END$$
+
+DROP FUNCTION IF EXISTS age_generator$$
+CREATE FUNCTION age_generator (`from` TINYINT, `to` TINYINT) RETURNS TINYINT
+    DETERMINISTIC
+BEGIN
+    DECLARE result TINYINT;
+    SELECT `from` + FLOOR(RAND()*(`to` - `from`)) INTO result;
+    RETURN result;
+END$$
+
+
+DROP FUNCTION IF EXISTS sex_generator$$
 CREATE FUNCTION sex_generator () RETURNS VARCHAR(6)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(6);
@@ -22,12 +42,13 @@ BEGIN
     CASE num
         WHEN 3 THEN SET result = null;
         ELSE SET result = num_to_sex(num);
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS male_last_name$$
 CREATE FUNCTION male_last_name () RETURNS VARCHAR(25)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(50);
@@ -133,12 +154,13 @@ BEGIN
         WHEN 98 THEN SET result = 'Казаков';
         WHEN 99 THEN SET result = 'Елисеев';
         WHEN 100 THEN SET result = 'Евсеев';
-    END CASE;
+        END CASE;
     RETURN result;
 END $$
 
+DROP FUNCTION IF EXISTS male_first_name$$
 CREATE FUNCTION male_first_name() RETURNS VARCHAR(25)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(25);
@@ -244,12 +266,13 @@ BEGIN
         WHEN 98 THEN SET result = 'Спартак';
         WHEN 99 THEN SET result = 'Лев';
         WHEN 100 THEN SET result = 'Алмаз';
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS female_last_name$$
 CREATE FUNCTION female_last_name () RETURNS VARCHAR(25)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(25);
@@ -355,12 +378,13 @@ BEGIN
         WHEN 98 THEN SET result = 'Константинова';
         WHEN 99 THEN SET result = 'Одинцова';
         WHEN 100 THEN SET result = 'Рыжих';
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS female_first_name$$
 CREATE FUNCTION female_first_name () RETURNS VARCHAR(25)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE num INT;
     DECLARE result VARCHAR(25);
@@ -466,32 +490,35 @@ BEGIN
         WHEN 98 THEN SET result = 'Йосифа';
         WHEN 99 THEN SET result = 'Цилла';
         WHEN 100 THEN SET result = 'Елизавета';
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS first_name_generator$$
 CREATE FUNCTION first_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE result VARCHAR(6);
     CASE sex
         WHEN 'male' THEN SELECT male_first_name() INTO result;
         WHEN 'female' THEN SELECT female_first_name() INTO result;
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS last_name_generator$$
 CREATE FUNCTION last_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
-NOT DETERMINISTIC
+    NOT DETERMINISTIC
 BEGIN
     DECLARE result VARCHAR(6);
     CASE sex
         WHEN 'male' THEN SELECT male_last_name() INTO result;
         WHEN 'female' THEN SELECT female_last_name() INTO result;
-    END CASE;
+        END CASE;
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_place_type$$
 CREATE FUNCTION generate_place_type () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -515,6 +542,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_name_form_1$$
 CREATE FUNCTION generate_city_name_form_1 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -551,6 +579,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_part_form_1$$
 CREATE FUNCTION generate_city_part_form_1 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -572,6 +601,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_name_form_2$$
 CREATE FUNCTION generate_city_name_form_2 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -608,6 +638,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_part_form_2$$
 CREATE FUNCTION generate_city_part_form_2 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -629,6 +660,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_name_form_3$$
 CREATE FUNCTION generate_city_name_form_3 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -665,6 +697,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_part_form_3$$
 CREATE FUNCTION generate_city_part_form_3 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -686,6 +719,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_name_form_4$$
 CREATE FUNCTION generate_city_name_form_4 () RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
@@ -722,6 +756,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_part_form_4$$
 CREATE FUNCTION generate_city_part_form_4 () RETURNS VARCHAR(10)
     NOT DETERMINISTIC
 BEGIN
@@ -743,6 +778,7 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS generate_city_name$$
 CREATE FUNCTION generate_city_name () RETURNS VARCHAR(50)
     NOT DETERMINISTIC
 BEGIN
@@ -764,37 +800,226 @@ BEGIN
     RETURN result;
 END$$
 
+DROP FUNCTION IF EXISTS get_interest_name$$
+CREATE FUNCTION get_interest_name (num INT) RETURNS VARCHAR(80)
+    NOT DETERMINISTIC
+BEGIN
+    DECLARE result VARCHAR(80);
+    CASE num
+        WHEN 1 THEN SET result = 'Авиация';
+        WHEN 2 THEN SET result = 'Аэрография';
+        WHEN 3 THEN SET result = 'Авиамоделирование';
+        WHEN 4 THEN SET result = 'Астрономия';
+        WHEN 5 THEN SET result = 'Музыка';
+        WHEN 6 THEN SET result = 'Животные';
+        WHEN 7 THEN SET result = 'Стрельба из лука';
+        WHEN 8 THEN SET result = 'Охота';
+        WHEN 9 THEN SET result = 'Астрология';
+        WHEN 10 THEN SET result = 'Нарды';
+        WHEN 11 THEN SET result = 'Бадминтон';
+        WHEN 12 THEN SET result = 'Бейсбол';
+        WHEN 13 THEN SET result = 'Бейсджампинг';
+        WHEN 14 THEN SET result = 'Баскетбол';
+        WHEN 15 THEN SET result = 'Пляжный отдых';
+        WHEN 16 THEN SET result = 'Вышивка бисером';
+        WHEN 17 THEN SET result = 'Бокс';
+        WHEN 18 THEN SET result = 'Танец живота';
+        WHEN 19 THEN SET result = 'Езда на велосипеде';
+        WHEN 20 THEN SET result = 'Наблюдение за птицами';
+        WHEN 21 THEN SET result = 'Кузнечное дело';
+        WHEN 22 THEN SET result = 'Ведение блога';
+        WHEN 23 THEN SET result = 'Настольные игры';
+        WHEN 24 THEN SET result = 'Гребля';
+        WHEN 25 THEN SET result = 'Бодибилдинг';
+        WHEN 26 THEN SET result = 'Ботаника';
+        WHEN 27 THEN SET result = 'Боулинг';
+        WHEN 28 THEN SET result = 'Пивоварение';
+        WHEN 29 THEN SET result = 'Строительство';
+        WHEN 30 THEN SET result = 'Каллиграфия';
+        WHEN 31 THEN SET result = 'Походы';
+        WHEN 32 THEN SET result = 'Гребля';
+        WHEN 33 THEN SET result = 'Автогонки';
+        WHEN 34 THEN SET result = 'Казино';
+        WHEN 35 THEN SET result = 'Дайвинг';
+        WHEN 36 THEN SET result = 'Черлидинг';
+        WHEN 37 THEN SET result = 'Шахматы';
+        WHEN 38 THEN SET result = 'Религия';
+        WHEN 39 THEN SET result = 'Медитация';
+        WHEN 40 THEN SET result = 'Коллекционирование монет';
+        WHEN 41 THEN SET result = 'Коллекционирование антиквариата';
+        WHEN 42 THEN SET result = 'Коллекционирование музыки';
+        WHEN 43 THEN SET result = 'Коллекционирование марок';
+        WHEN 44 THEN SET result = 'Коллекционирование холодного оружия';
+        WHEN 45 THEN SET result = 'Композиторство';
+        WHEN 46 THEN SET result = 'Компьютеры';
+        WHEN 47 THEN SET result = 'Кулинария';
+        WHEN 48 THEN SET result = 'Косплей';
+        WHEN 49 THEN SET result = 'Вязание крючком';
+        WHEN 50 THEN SET result = 'Вышивание крестиком';
+        WHEN 51 THEN SET result = 'Разгадывание кроссвордов';
+        WHEN 52 THEN SET result = 'Танцы';
+        WHEN 53 THEN SET result = 'Дартс';
+        WHEN 54 THEN SET result = 'Фотографирование';
+        WHEN 55 THEN SET result = 'Домино';
+        WHEN 56 THEN SET result = 'Рисование';
+        WHEN 57 THEN SET result = 'Электроника';
+        WHEN 58 THEN SET result = 'Вышивка';
+        WHEN 59 THEN SET result = 'Пауерлифтинг';
+        WHEN 60 THEN SET result = 'Соколиная охота';
+        WHEN 61 THEN SET result = 'Фехтование';
+        WHEN 62 THEN SET result = 'Рыбалка';
+        WHEN 63 THEN SET result = 'Экибана';
+        WHEN 64 THEN SET result = 'Футбол';
+        WHEN 65 THEN SET result = 'Фрисби';
+        WHEN 66 THEN SET result = 'Гольф';
+        WHEN 67 THEN SET result = 'Игры';
+        WHEN 68 THEN SET result = 'Садоводство';
+        WHEN 69 THEN SET result = 'Генеалогия';
+        WHEN 70 THEN SET result = 'Гонки на картах';
+        WHEN 71 THEN SET result = 'Игра на гитаре';
+        WHEN 72 THEN SET result = 'Оружее';
+        WHEN 73 THEN SET result = 'Гимнастика';
+        WHEN 74 THEN SET result = 'Дельтапланеризм';
+        WHEN 75 THEN SET result = 'Пеший туризм';
+        WHEN 76 THEN SET result = 'Ремонт';
+        WHEN 77 THEN SET result = 'Театр';
+        WHEN 78 THEN SET result = 'Верховая езда';
+        WHEN 79 THEN SET result = 'Катание на коньках';
+        WHEN 80 THEN SET result = 'Катание на роликах';
+        WHEN 81 THEN SET result = 'Интернет';
+        WHEN 82 THEN SET result = 'Изготовление ювелирных изделий';
+        WHEN 83 THEN SET result = 'Пазлы';
+        WHEN 84 THEN SET result = 'Жонглирование';
+        WHEN 85 THEN SET result = 'Химия';
+        WHEN 86 THEN SET result = 'Кайт бординг';
+        WHEN 87 THEN SET result = 'Вязание';
+        WHEN 88 THEN SET result = 'Покер';
+        WHEN 89 THEN SET result = 'Иностранные языки';
+        WHEN 90 THEN SET result = 'Пилотирование самолета';
+        WHEN 91 THEN SET result = 'Лакросс';
+        WHEN 92 THEN SET result = 'Макраме';
+        WHEN 93 THEN SET result = 'Фокусы';
+        WHEN 94 THEN SET result = 'Моделирование';
+        WHEN 95 THEN SET result = 'Боевые искусства';
+        WHEN 96 THEN SET result = 'Кладоискание';
+        WHEN 97 THEN SET result = 'Моделирование ракеты';
+        WHEN 98 THEN SET result = 'Моделирование корабля';
+        WHEN 99 THEN SET result = 'Мотоциклы';
+        WHEN 100 THEN SET result = 'Катание на горных велосипедах';
+        WHEN 101 THEN SET result = 'Скалолазание';
+        WHEN 102 THEN SET result = 'Музыкальные инструменты';
+        WHEN 103 THEN SET result = 'Маникюр';
+        WHEN 104 THEN SET result = 'Акупунктура';
+        WHEN 105 THEN SET result = 'Коллекционирование антикварных автомобилей';
+        WHEN 106 THEN SET result = 'Оригами';
+        WHEN 107 THEN SET result = 'Рисование на холсте';
+        WHEN 108 THEN SET result = 'Пейнтбол';
+        WHEN 109 THEN SET result = 'Парашютный спорт';
+        WHEN 110 THEN SET result = 'Парапланеризм';
+        WHEN 111 THEN SET result = 'Паркур';
+        WHEN 112 THEN SET result = 'Фотография';
+        WHEN 113 THEN SET result = 'Пианино';
+        WHEN 114 THEN SET result = 'Карты';
+        WHEN 115 THEN SET result = 'Играть музыку';
+        WHEN 116 THEN SET result = 'Волейбол';
+        WHEN 117 THEN SET result = 'Пиротехника';
+        WHEN 118 THEN SET result = 'Рафтинг';
+        WHEN 119 THEN SET result = 'Самолеты';
+        WHEN 120 THEN SET result = 'Чтение';
+        WHEN 121 THEN SET result = 'Фильмы';
+        WHEN 122 THEN SET result = 'Робототехника';
+        WHEN 123 THEN SET result = 'Ролевые игры';
+        WHEN 124 THEN SET result = 'Бег';
+        WHEN 125 THEN SET result = 'Скрапбукинг';
+        WHEN 126 THEN SET result = 'Подводное плавание';
+        WHEN 127 THEN SET result = 'Самооборона';
+        WHEN 128 THEN SET result = 'Шитье';
+        WHEN 129 THEN SET result = 'Стрельба по тарелочкам';
+        WHEN 130 THEN SET result = 'Лыжи';
+        WHEN 131 THEN SET result = 'Шоппинг';
+        WHEN 132 THEN SET result = 'Пение';
+        WHEN 133 THEN SET result = 'Скейтбординг';
+        WHEN 134 THEN SET result = 'Сон';
+        WHEN 135 THEN SET result = 'Игровые автоматы';
+        WHEN 136 THEN SET result = 'Сноуборд';
+        WHEN 137 THEN SET result = 'Изготовление мыла';
+        WHEN 138 THEN SET result = 'Общение';
+        WHEN 139 THEN SET result = 'Кубик рубик';
+        WHEN 140 THEN SET result = 'Филателия';
+        WHEN 141 THEN SET result = 'Серфинг';
+        WHEN 142 THEN SET result = 'Выживание';
+        WHEN 143 THEN SET result = 'Плавание';
+        WHEN 144 THEN SET result = 'Плетение';
+        WHEN 145 THEN SET result = 'Большой теннис';
+        WHEN 146 THEN SET result = 'Компьютерные игры';
+        WHEN 147 THEN SET result = 'Споттинг';
+        WHEN 148 THEN SET result = 'Путешествия';
+        WHEN 149 THEN SET result = 'Охота за сокровищами';
+        WHEN 150 THEN SET result = 'Телевизор';
+        END CASE;
+    RETURN result;
+END $$
+
+DROP PROCEDURE IF EXISTS generate_cities$$
 CREATE PROCEDURE generate_cities (quantity INT)
 BEGIN
     DECLARE step INT;
+    DECLARE city_name VARCHAR(80);
     SET step = 1;
     WHILE step <= quantity DO
-        INSERT INTO city (`id`, `name`) VALUES (step, generate_city_name());
-        SET step = step + 1;
-    END WHILE;
+            SELECT generate_city_name() INTO city_name;
+            INSERT INTO city (`id`, `name`) VALUES (step, city_name);
+            SET step = step + 1;
+        END WHILE;
 END$$
 
-CALL generate_cities(100000)$$
+DROP PROCEDURE IF EXISTS generate_interests$$
+CREATE PROCEDURE generate_interests ()
+BEGIN
+    DECLARE quantity INT;
+    DECLARE step INT;
+    DECLARE interest_name VARCHAR(80);
+    SET step = 1;
+    SET quantity = 150;
+    WHILE step <= quantity DO
+            SELECT get_interest_name(step) INTO interest_name;
+            INSERT INTO interest (`id`, `name`) VALUES (step, interest_name);
+            SET step = step + 1;
+        END WHILE;
+END$$
 
-DROP FUNCTION IF EXISTS num_to_sex$$
-DROP FUNCTION IF EXISTS sex_generator$$
-DROP FUNCTION IF EXISTS male_last_name$$
-DROP FUNCTION IF EXISTS male_first_name$$
-DROP FUNCTION IF EXISTS female_last_name$$
-DROP FUNCTION IF EXISTS female_first_name$$
-DROP FUNCTION IF EXISTS first_name_generator$$
-DROP FUNCTION IF EXISTS last_name_generator$$
-DROP FUNCTION IF EXISTS generate_place_type$$
-DROP FUNCTION IF EXISTS generate_city_name_form_1$$
-DROP FUNCTION IF EXISTS generate_city_part_form_1$$
-DROP FUNCTION IF EXISTS generate_city_name_form_2$$
-DROP FUNCTION IF EXISTS generate_city_part_form_2$$
-DROP FUNCTION IF EXISTS generate_city_name_form_3$$
-DROP FUNCTION IF EXISTS generate_city_part_form_3$$
-DROP FUNCTION IF EXISTS generate_city_name_form_4$$
-DROP FUNCTION IF EXISTS generate_city_part_form_4$$
-DROP FUNCTION IF EXISTS generate_city_name;
-DROP PROCEDURE IF EXISTS generate_cities;
+DROP PROCEDURE IF EXISTS generate_users$$
+CREATE PROCEDURE generate_users (quantity INT, max_city_id INT)
+BEGIN
+    DECLARE sex VARCHAR(6);
+    DECLARE sex_for_name VARCHAR(6);
+    DECLARE age TINYINT;
+    DECLARE city_id TINYINT;
+    DECLARE first_name VARCHAR(50);
+    DECLARE last_name VARCHAR(50);
+    DECLARE login VARCHAR(40);
+    DECLARE step INT;
+    SET step = 1;
+    WHILE step <= quantity DO
+            SELECT create_user_login(step) INTO login;
+            SELECT sex_generator() INTO sex;
+            SELECT age_generator(16, 60) INTO sex;
+            SELECT CEIL(RAND()*max_city_id) INTO city_id;
+            insert into tmp select concat(step, ' ', city_id);
+            SET sex_for_name = sex;
+            IF sex IS NULL
+            THEN SELECT num_to_sex(CEIL(RAND()*2)) INTO sex_for_name;
+            END IF;
+            SELECT first_name_generator(sex_for_name) INTO first_name;
+            SELECT last_name_generator(sex_for_name) INTO last_name;
+            SET step = step + 1;
+            INSERT INTO user (`id`, `login`, `password`,
+                              `first_name`, `last_name`, `age`,
+                              `sex`, `city_id`)
+            VALUES (step, login, 'e10adc3949ba59abbe56e057f20f883e',
+                    first_name, last_name, age, sex, city_id);
+        END WHILE;
+END$$
 
 DELIMITER ;
 
