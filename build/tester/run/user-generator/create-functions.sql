@@ -14,7 +14,7 @@ BEGIN
 END$$
 
 DROP FUNCTION IF EXISTS create_user_login$$
-CREATE FUNCTION create_user_login (num INT) RETURNS VARCHAR(6)
+CREATE FUNCTION create_user_login (num INT) RETURNS VARCHAR(40)
     DETERMINISTIC
 BEGIN
     DECLARE result VARCHAR(40);
@@ -495,22 +495,22 @@ BEGIN
 END$$
 
 DROP FUNCTION IF EXISTS first_name_generator$$
-CREATE FUNCTION first_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+CREATE FUNCTION first_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
-    DECLARE result VARCHAR(6);
+    DECLARE result VARCHAR(25);
     CASE sex
         WHEN 'male' THEN SELECT male_first_name() INTO result;
         WHEN 'female' THEN SELECT female_first_name() INTO result;
-        END CASE;
+		END CASE;
     RETURN result;
 END$$
 
 DROP FUNCTION IF EXISTS last_name_generator$$
-CREATE FUNCTION last_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(6)
+CREATE FUNCTION last_name_generator (sex VARCHAR(6)) RETURNS VARCHAR(25)
     NOT DETERMINISTIC
 BEGIN
-    DECLARE result VARCHAR(6);
+    DECLARE result VARCHAR(25);
     CASE sex
         WHEN 'male' THEN SELECT male_last_name() INTO result;
         WHEN 'female' THEN SELECT female_last_name() INTO result;
@@ -989,12 +989,12 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS generate_users$$
-CREATE PROCEDURE generate_users (quantity INT, max_city_id INT)
+CREATE PROCEDURE generate_users (quantity INT, max_city_id INT, from_age TINYINT, to_age TINYINT)
 BEGIN
     DECLARE sex VARCHAR(6);
     DECLARE sex_for_name VARCHAR(6);
     DECLARE age TINYINT;
-    DECLARE city_id TINYINT;
+    DECLARE city_id INT;
     DECLARE first_name VARCHAR(50);
     DECLARE last_name VARCHAR(50);
     DECLARE login VARCHAR(40);
@@ -1003,22 +1003,42 @@ BEGIN
     WHILE step <= quantity DO
             SELECT create_user_login(step) INTO login;
             SELECT sex_generator() INTO sex;
-            SELECT age_generator(16, 60) INTO sex;
+            SELECT age_generator(from_age, to_age) INTO age;
             SELECT CEIL(RAND()*max_city_id) INTO city_id;
-            insert into tmp select concat(step, ' ', city_id);
             SET sex_for_name = sex;
-            IF sex IS NULL
-            THEN SELECT num_to_sex(CEIL(RAND()*2)) INTO sex_for_name;
+            IF sex IS NULL THEN
+				SELECT num_to_sex(CEIL(RAND()*2)) INTO sex_for_name;
             END IF;
             SELECT first_name_generator(sex_for_name) INTO first_name;
             SELECT last_name_generator(sex_for_name) INTO last_name;
-            SET step = step + 1;
-            INSERT INTO user (`id`, `login`, `password`,
+            INSERT INTO `user` (`id`, `login`, `password`,
                               `first_name`, `last_name`, `age`,
                               `sex`, `city_id`)
             VALUES (step, login, 'e10adc3949ba59abbe56e057f20f883e',
                     first_name, last_name, age, sex, city_id);
+			SET step = step + 1;
         END WHILE;
+END$$
+
+DROP PROCEDURE IF EXISTS generate_users_interests$$
+CREATE PROCEDURE generate_users_interests (users_quantity INT, max_interests INT)
+BEGIN
+    DECLARE user_interests INT;
+    DECLARE user_step INT;
+    DECLARE interest_step INT;
+    DECLARE user_interest INT;
+    DECLARE interests_quantity INT;
+    SET user_step = 1;
+    WHILE user_step <= users_quantity DO
+        SET interest_step = 1;
+        SELECT CEIL(RAND()*max_interests) INTO interests_quantity;
+        WHILE interest_step <= interests_quantity DO
+            SELECT CEIL(RAND()*150) INTO user_interest;
+            INSERT INTO user_interest (`user_id`, `interest_id`) VALUES (user_step, interest_step);
+            SET interest_step = interest_step + 1;
+        END WHILE;
+        SET user_step = user_step + 1;
+    END WHILE;
 END$$
 
 DELIMITER ;
