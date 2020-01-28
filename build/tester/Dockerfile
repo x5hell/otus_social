@@ -1,4 +1,6 @@
-FROM alpine:3.11
+FROM golang:1.13.5-alpine3.10
+
+WORKDIR /go/src/
 
 COPY run /run
 

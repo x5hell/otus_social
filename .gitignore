@@ -9,4 +9,5 @@
 .idea
 build/go/pkg
 build/go/src/main
+build/tester/src/main
 build/go/src/github.com

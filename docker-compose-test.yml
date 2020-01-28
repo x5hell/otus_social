@@ -23,3 +23,6 @@ services:
     container_name: social_tester
     build: ./build/tester
     image: social_tester:master
+    env_file: .env
+    volumes:
+      - ./build/tester/src:/go/src/
