@@ -1,5 +1,27 @@
 package generator
 
+import (
+	"strconv"
+	"structure"
+)
+
+func InterestRows(num int) (result []structure.Table) {
+	for i := 1; i <= num; i++ {
+		interestRow := structure.Interest{
+			ID: structure.NullString{
+				Valid:true,
+				String:strconv.Itoa(i),
+			},
+			Name: structure.NullString{
+				Valid:true,
+				String: Interest(i),
+			},
+		}
+		result = append(result, interestRow)
+	}
+	return result
+}
+
 func Interest(seed int) string {
 	num := seed % 150 + 1
 	switch num {

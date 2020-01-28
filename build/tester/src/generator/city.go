@@ -2,10 +2,29 @@ package generator
 
 import (
 	"math/rand"
+	"strconv"
 	"strings"
+	"structure"
 )
 
 const CityForms = 4
+
+func CityRows(num int) (result []structure.Table) {
+	for i := 1; i <= num; i++ {
+		cityRow := structure.City{
+			ID: structure.NullString{
+				Valid:true,
+				String:strconv.Itoa(i),
+			},
+			Name: structure.NullString{
+				Valid:true,
+				String: City(),
+			},
+		}
+		result = append(result, cityRow)
+	}
+	return result
+}
 
 func City() string {
 	form := rand.Intn(CityForms)
@@ -19,6 +38,14 @@ func City() string {
 		cityParts = []string{placeType, cityName}
 	}
 	return strings.Join(cityParts, " ")
+}
+
+func generateCityId(maxCityId int) structure.NullString {
+	cityId := rand.Intn(maxCityId)
+	return structure.NullString{
+		Valid: cityId % 3 > 0,
+		String: strconv.Itoa(cityId),
+	}
 }
 
 func generatePlaceType() string {

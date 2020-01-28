@@ -3,6 +3,7 @@ package converter
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"structure"
 )
 
@@ -12,14 +13,20 @@ func RowListToSqlInsertQuery(rowList []structure.Table) string {
 	}
 
 	firstRow := rowList[0]
-	//tableName := firstRow.GetTableName()
+	tableName := firstRow.GetTableName()
 	propertyList := structure.GetTablePropertyList(firstRow)
-	//fieldList := structure.GetTableFieldList(firstRow)
-	/*sqlQueryStart := fmt.Sprintf(
-		"INSERT INTO %s (%s) ",
+	fieldList := structure.GetTableFieldList(firstRow)
+	sqlQueryStart := fmt.Sprintf(
+		"INSERT INTO %s (%s)",
 		tableName,
 		strings.Join(fieldList, ","))
-*/
+
+	sqlQueryValues := RowListToSqlInsertQueryValues(rowList, propertyList)
+	return fmt.Sprintf("%s VALUES %s;", sqlQueryStart, sqlQueryValues)
+}
+
+func RowListToSqlInsertQueryValues(rowList []structure.Table, propertyList []string) string {
+	var rowListQuery []string
 	for _, row := range rowList {
 		rowValue := reflect.ValueOf(row)
 		var rowValueList []string
@@ -29,10 +36,13 @@ func RowListToSqlInsertQuery(rowList []structure.Table) string {
 			fieldQuery := NullStringToQuery(field)
 			rowValueList = append(rowValueList, fieldQuery)
 		}
-		fmt.Println(rowValueList)
+		rowQuery := "(" + strings.Join(rowValueList, ",") + ")"
+		rowListQuery = append(rowListQuery, rowQuery)
 	}
-	return ""
+	return strings.Join(rowListQuery, ",")
 }
+
+
 
 func NullStringToQuery (field structure.NullString) string {
 	if field.Valid {
