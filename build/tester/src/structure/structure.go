@@ -32,7 +32,7 @@ type User struct {
 	Login NullString `field:"login"`
 	Password NullString `field:"password"`
 	FirstName NullString `field:"first_name"`
-	LastName NullString `field:"lastName"`
+	LastName NullString `field:"last_name"`
 	Age NullString `field:"age"`
 	Sex NullString `field:"sex"`
 	CityId NullString `field:"city_id"`
