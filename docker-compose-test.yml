@@ -9,6 +9,8 @@ services:
     env_file: .env
     volumes:
       - ./build/go/src:/go/src/
+    depends_on:
+      - db
   db:
     container_name: social_mysql
     image: mysql:8.0.18
@@ -26,3 +28,5 @@ services:
     env_file: .env
     volumes:
       - ./build/tester/src:/go/src/
+    depends_on:
+      - db

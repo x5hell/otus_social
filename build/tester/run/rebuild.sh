@@ -5,4 +5,4 @@ do
 done
 pkill /go/src/main
 go build /go/src/main.go
-/go/src/main
+#/go/src/main

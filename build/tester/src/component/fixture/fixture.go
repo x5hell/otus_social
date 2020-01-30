@@ -1,35 +1,34 @@
 package fixture
 
 import (
-	"component/file"
-	"io"
+	"component/handler"
+	"fmt"
+	"os"
 	"os/exec"
 )
 
 func Apply(fixturePath string) (err error) {
-	fixtureContent, err := file.GetContent(fixturePath)
-	if err != nil {
-		return err
-	}
+	fmt.Println("mysql",
+		"--user=" + os.ExpandEnv("$MYSQL_ROOT_USER"),
+		"--password=" + os.ExpandEnv("$MYSQL_ROOT_PASSWORD"),
+		"--database=" + os.ExpandEnv("$MYSQL_DATABASE"),
+		"--port=" + os.ExpandEnv("$MYSQL_PORT"),
+		"--execute", "SOURCE " + fixturePath,)
+
 	cmd := exec.Command(
 		"mysql",
-		"--user", "$MYSQL_ROOT_USER",
-		"--password", "$MYSQL_ROOT_PASSWORD",
-		"--database", "$MYSQL_DATABASE",
-		"--host", "$MYSQL_HOST",
-		"--port", "$MYSQL_PORT",
+		"--user=" + os.ExpandEnv("$MYSQL_ROOT_USER"),
+		"--password=" + os.ExpandEnv("$MYSQL_ROOT_PASSWORD"),
+		"--database=" + os.ExpandEnv("$MYSQL_DATABASE"),
+		"--port=" + os.ExpandEnv("$MYSQL_PORT"),
+		"--execute", "SOURCE " + fixturePath,
 		)
-	stdin, err := cmd.StdinPipe()
-	if err != nil {
-		return err
-	}
+	cmd.Env = os.Environ()
 	err = cmd.Start()
 	if err != nil {
+		handler.ErrorLog(err)
 		return err
 	}
-	_, err = io.WriteString(stdin, fixtureContent)
-	if err != nil {
-		return err
-	}
+
 	return nil
 }

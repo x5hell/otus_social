@@ -4,7 +4,7 @@ WORKDIR /go/src/
 
 COPY run /run
 
-RUN apk add mysql-client && \
+RUN apk add mysql-client mariadb-connector-c && \
     chmod +x /run/*.sh
 
 ENTRYPOINT ["sh", "/run/run.sh"]
