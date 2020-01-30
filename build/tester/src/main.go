@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"component/fixture"
+	"generator"
 	"log"
 	"math/rand"
 	"time"
@@ -9,12 +10,16 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	seedDataParams, err := GetSeedDataParams()
-
-	fmt.Println(seedDataParams)
-
+	seedDataParams, err := generator.GetSeedDataParams()
 	if err != nil {
 		log.Fatal(err)
 	}
-	SeedData(seedDataParams)
+	err = generator.GenerateFixture(seedDataParams)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = fixture.Apply(seedDataParams.FixtureGeneratedScript)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
