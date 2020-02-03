@@ -5,10 +5,14 @@ services:
     build: ./build/go
     image: social_go:master
     ports:
-      - "8000:8001"
+      - "80:8001"
     env_file: .env
     volumes:
       - ./build/go/src:/go/src/
+    depends_on:
+      - db
+    networks:
+      - default
   db:
     container_name: social_mysql
     image: mysql:8.0.18
@@ -19,3 +23,9 @@ services:
     volumes:
       - ./build/mysql/init_sql:/docker-entrypoint-initdb.d
       - ./build/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+    networks:
+      - default
+networks:
+  default:
+    ipam:
+      driver: default
