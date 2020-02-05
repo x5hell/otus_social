@@ -14,6 +14,7 @@ services:
   db:
     container_name: social_mysql
     image: mysql:8.0.18
+    command: --max_allowed_packet=32505856
     restart: always
     ports:
       - "3306:3306"

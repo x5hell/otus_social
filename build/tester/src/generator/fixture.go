@@ -18,18 +18,20 @@ const EnvMaxUserInterests = "MAX_USER_INTERESTS"
 const EnvSqlScriptsPath = "SQL_SCRIPTS_PATH"
 const EnvBeforeSeedScript = "BEFORE_SEED_SCRIPT"
 const EnvAfterSeedScript = "AFTER_SEED_SCRIPT"
+const EnvRemoveIndexScript = "REMOVE_INDEX_SCRIPT"
 const EnvFixtureGeneratedScript = "GENERATED_FIXTURE_SCRIPT"
 
 type SeedDataParams struct {
-	Cities               int
-	Interests            int
-	Users                int
-	MinAge               int
-	MaxAge               int
-	MaxUserInterests     int
-	BeforeDataSeedScript string
-	AfterDataSeedScript  string
-	FixtureGeneratedScript string
+	Cities               	int
+	Interests            	int
+	Users                	int
+	MinAge               	int
+	MaxAge               	int
+	MaxUserInterests     	int
+	BeforeDataSeedScript 	string
+	AfterDataSeedScript  	string
+	RemoveIndexScript 	   	string
+	FixtureGeneratedScript 	string
 }
 
 func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
@@ -44,6 +46,7 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		EnvSqlScriptsPath,
 		EnvBeforeSeedScript,
 		EnvAfterSeedScript,
+		EnvRemoveIndexScript,
 		EnvFixtureGeneratedScript,
 	}
 
@@ -51,6 +54,7 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		EnvSqlScriptsPath:   "",
 		EnvBeforeSeedScript: "",
 		EnvAfterSeedScript:  "",
+		EnvRemoveIndexScript: "",
 		EnvFixtureGeneratedScript: "",
 	}
 
@@ -89,6 +93,7 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		MaxUserInterests:     intMap[EnvMaxUserInterests],
 		BeforeDataSeedScript: stringMap[EnvSqlScriptsPath] + stringMap[EnvBeforeSeedScript],
 		AfterDataSeedScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvAfterSeedScript],
+		RemoveIndexScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvRemoveIndexScript],
 		FixtureGeneratedScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvFixtureGeneratedScript],
 	}, nil
 }
@@ -104,11 +109,17 @@ func GenerateFixture(params SeedDataParams) error {
 		handler.ErrorLog(err)
 		return err
 	}
+	removeIndex, err := file.GetContent(params.RemoveIndexScript)
+	if err != nil {
+		handler.ErrorLog(err)
+		return err
+	}
 
 	err = file.WriteList(
 		params.FixtureGeneratedScript,
 		[]string{
 			beforeDataSeed + "\n",
+			removeIndex + "\n",
 			converter.RowListToSqlInsertQuery(CityRows(params.Cities)) + "\n",
 			converter.RowListToSqlInsertQuery(InterestRows(params.Interests)) + "\n",
 			converter.RowListToSqlInsertQuery(

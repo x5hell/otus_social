@@ -22,13 +22,16 @@ func Apply(fixturePath string) (err error) {
 		"--database=" + os.ExpandEnv("$MYSQL_DATABASE"),
 		"--port=" + os.ExpandEnv("$MYSQL_PORT"),
 		"--execute", "SOURCE " + fixturePath,
-		)
+	)
 	cmd.Env = os.Environ()
-	err = cmd.Start()
+
+	out, err := cmd.CombinedOutput()
 	if err != nil {
 		handler.ErrorLog(err)
 		return err
 	}
+
+	fmt.Println(string(out))
 
 	return nil
 }
