@@ -120,11 +120,11 @@ func GenerateFixture(params SeedDataParams) error {
 		[]string{
 			beforeDataSeed + "\n",
 			removeIndex + "\n",
-			converter.RowListToSqlInsertQuery(CityRows(params.Cities)) + "\n",
-			converter.RowListToSqlInsertQuery(InterestRows(params.Interests)) + "\n",
-			converter.RowListToSqlInsertQuery(
+			converter.RowListToSqlInsertQueryList(CityRows(params.Cities)) + "\n",
+			converter.RowListToSqlInsertQueryList(InterestRows(params.Interests)) + "\n",
+			converter.RowListToSqlInsertQueryList(
 				UserRows(params.Users, params.Cities, params.MinAge, params.MaxAge)) + "\n",
-			converter.RowListToSqlInsertQuery(
+			converter.RowListToSqlInsertQueryList(
 				UserInterestRows(params.Users, params.Interests, params.MaxUserInterests)) + "\n",
 			afterDataSeed,
 		})

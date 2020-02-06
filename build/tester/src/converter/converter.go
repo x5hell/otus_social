@@ -7,6 +7,8 @@ import (
 	"structure"
 )
 
+const insertPacketSize = 5000
+
 func RowListToSqlInsertQuery(rowList []structure.Table) string {
 	if len(rowList) == 0 {
 		return ""
@@ -23,6 +25,26 @@ func RowListToSqlInsertQuery(rowList []structure.Table) string {
 
 	sqlQueryValues := RowListToSqlInsertQueryValues(rowList, propertyList)
 	return fmt.Sprintf("%s VALUES %s;", sqlQueryStart, sqlQueryValues)
+}
+
+func RowListToSqlInsertQueryList(rowList []structure.Table) string {
+	var packetRowList []structure.Table
+	var sqlInsertQueryList []string
+	for rowNumber, row := range rowList {
+		if rowNumber % insertPacketSize == 0 {
+			if len(packetRowList) > 0 {
+				sqlInsertQuery := RowListToSqlInsertQuery(packetRowList)
+				sqlInsertQueryList = append(sqlInsertQueryList, sqlInsertQuery)
+			}
+			packetRowList = []structure.Table{}
+		}
+		packetRowList = append(packetRowList, row)
+	}
+	if len(packetRowList) > 0 {
+		sqlInsertQuery := RowListToSqlInsertQuery(packetRowList)
+		sqlInsertQueryList = append(sqlInsertQueryList, sqlInsertQuery)
+	}
+	return strings.Join(sqlInsertQueryList, "\n")
 }
 
 func RowListToSqlInsertQueryValues(rowList []structure.Table, propertyList []string) string {
