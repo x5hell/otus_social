@@ -19,6 +19,7 @@ const EnvSqlScriptsPath = "SQL_SCRIPTS_PATH"
 const EnvBeforeSeedScript = "BEFORE_SEED_SCRIPT"
 const EnvAfterSeedScript = "AFTER_SEED_SCRIPT"
 const EnvRemoveIndexScript = "REMOVE_INDEX_SCRIPT"
+const EnvAddIndexScript = "ADD_INDEX_SCRIPT"
 const EnvFixtureGeneratedScript = "GENERATED_FIXTURE_SCRIPT"
 
 type SeedDataParams struct {
@@ -31,6 +32,7 @@ type SeedDataParams struct {
 	BeforeDataSeedScript 	string
 	AfterDataSeedScript  	string
 	RemoveIndexScript 	   	string
+	AddIndexScript 			string
 	FixtureGeneratedScript 	string
 }
 
@@ -47,6 +49,7 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		EnvBeforeSeedScript,
 		EnvAfterSeedScript,
 		EnvRemoveIndexScript,
+		EnvAddIndexScript,
 		EnvFixtureGeneratedScript,
 	}
 
@@ -55,6 +58,7 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		EnvBeforeSeedScript: "",
 		EnvAfterSeedScript:  "",
 		EnvRemoveIndexScript: "",
+		EnvAddIndexScript: "",
 		EnvFixtureGeneratedScript: "",
 	}
 
@@ -93,7 +97,8 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 		MaxUserInterests:     intMap[EnvMaxUserInterests],
 		BeforeDataSeedScript: stringMap[EnvSqlScriptsPath] + stringMap[EnvBeforeSeedScript],
 		AfterDataSeedScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvAfterSeedScript],
-		RemoveIndexScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvRemoveIndexScript],
+		RemoveIndexScript:    stringMap[EnvSqlScriptsPath] + stringMap[EnvRemoveIndexScript],
+		AddIndexScript:		  stringMap[EnvSqlScriptsPath] + stringMap[EnvAddIndexScript],
 		FixtureGeneratedScript:  stringMap[EnvSqlScriptsPath] + stringMap[EnvFixtureGeneratedScript],
 	}, nil
 }
@@ -109,17 +114,11 @@ func GenerateFixture(params SeedDataParams) error {
 		handler.ErrorLog(err)
 		return err
 	}
-	removeIndex, err := file.GetContent(params.RemoveIndexScript)
-	if err != nil {
-		handler.ErrorLog(err)
-		return err
-	}
 
 	err = file.WriteList(
 		params.FixtureGeneratedScript,
 		[]string{
 			beforeDataSeed + "\n",
-			removeIndex + "\n",
 			converter.RowListToSqlInsertQueryList(CityRows(params.Cities)) + "\n",
 			converter.RowListToSqlInsertQueryList(InterestRows(params.Interests)) + "\n",
 			converter.RowListToSqlInsertQueryList(
