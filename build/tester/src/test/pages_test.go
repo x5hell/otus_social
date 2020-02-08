@@ -1,88 +1,94 @@
 package test
 
 import (
-	"component/fixture"
 	"fmt"
-	"generator"
-	"io/ioutil"
-	"log"
-	"net/http"
+	"test/helper"
 	"testing"
 )
 
-func testPageSingleThead(url string) error {
-	httpClient := http.Client{}
-	domain := "http://social_go:8001/"
-	fullUrl := domain + url
-	response, err := httpClient.Get(fullUrl)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-	_, err = ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-	return  nil
+type PageTestDataProvider struct {
+	UsersQuantity    int
+	useIndexPageList []UseIndexPages
 }
 
-func getSeedDataParams() (seedDataParams generator.SeedDataParams) {
-	seedDataParams, err := generator.GetSeedDataParams()
-	if err != nil {
-		log.Fatal(err)
+type UseIndexPages struct{
+	UseIndex bool
+	PageUrlList []string
+}
+
+func PagesDataProvider() []PageTestDataProvider {
+	pageUrlList := []string{"user-profile-list", "user-profile-page?id=1"}
+	useIndexPageList := []UseIndexPages{
+		{
+			UseIndex: false,
+			PageUrlList: pageUrlList,
+		},
+		{
+			UseIndex: true,
+			PageUrlList: pageUrlList,
+		},
 	}
-	return seedDataParams
-}
-
-func addIndexes(seedDataParams generator.SeedDataParams) {
-	fixture.Apply(seedDataParams.AddIndexScript)
-}
-
-func removeIndexes(seedDataParams generator.SeedDataParams) {
-	fixture.Apply(seedDataParams.RemoveIndexScript)
-}
-
-func applyFixture(seedDataParams generator.SeedDataParams) {
-	err := generator.GenerateFixture(seedDataParams)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = fixture.Apply(seedDataParams.FixtureGeneratedScript)
-	if err != nil {
-		log.Fatal(err)
+	return []PageTestDataProvider{
+		{
+			UsersQuantity:    10000,
+			useIndexPageList: useIndexPageList,
+		},
+		{
+			UsersQuantity:    50000,
+			useIndexPageList: useIndexPageList,
+		},
+		{
+			UsersQuantity:    100000,
+			useIndexPageList: useIndexPageList,
+		},
 	}
 }
 
-func BenchmarkUserProfileListWith10000UsersWithoutIndexes(b *testing.B) {
-	seedDataParams := getSeedDataParams()
-	seedDataParams.Users = 10000
-	removeIndexes(seedDataParams)
-	applyFixture(seedDataParams)
-	errorCounter := 0
-	successCounter := 0
-	for i := 0; i < b.N; i++ {
-		if testPageSingleThead("user-profile-list") != nil {
-			errorCounter++
-		} else {
-			successCounter++
+func BenchmarkPages(b *testing.B) {
+	pagesDataProvider := PagesDataProvider()
+	seedDataParams := helper.GetSeedDataParams()
+
+	for _, pageTestDataProvider := range pagesDataProvider {
+		helper.RemoveIndexes(seedDataParams)
+		seedDataParams.Users = pageTestDataProvider.UsersQuantity
+		helper.ApplyFixture(seedDataParams)
+
+		for _, useIndexPage := range pageTestDataProvider.useIndexPageList {
+
+			if useIndexPage.UseIndex {
+				helper.AddIndexes(seedDataParams)
+			}
+
+			for _, pageUrl := range useIndexPage.PageUrlList {
+				b.Run(
+					fmt.Sprintf(
+						"usersQuantity = %d :: useIndex = %v :: pageUrl = %s",
+						pageTestDataProvider.UsersQuantity,
+						useIndexPage.UseIndex,
+						pageUrl,
+					),
+					benchmarkPage(pageUrl),
+				)
+			}
 		}
 	}
-	fmt.Printf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
-	addIndexes(seedDataParams)
 }
 
-func BenchmarkUserProfileListWith10000UsersWithIndexes(b *testing.B) {
-	seedDataParams := getSeedDataParams()
-	seedDataParams.Users = 10000
-	applyFixture(seedDataParams)
-	errorCounter := 0
-	successCounter := 0
-	for i := 0; i < b.N; i++ {
-		if testPageSingleThead("user-profile-list") != nil {
-			errorCounter++
-		} else {
-			successCounter++
+func benchmarkPage(url string) func (b *testing.B) {
+	return func(b *testing.B) {
+		errorCounter := 0
+		successCounter := 0
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			b.StartTimer()
+			err := helper.TestPageSingleThead(url)
+			b.StopTimer()
+			if err != nil {
+				errorCounter++
+			} else {
+				successCounter++
+			}
 		}
+		//b.Logf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
 	}
-	fmt.Printf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
 }

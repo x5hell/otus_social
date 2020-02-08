@@ -14,24 +14,19 @@ ALTER TABLE `user_interest`
     ADD PRIMARY KEY (`user_id`, `interest_id`);
 
 ALTER TABLE `user_interest`
-ADD INDEX `user_interest_interest_id_idx` (`interest_id` ASC) VISIBLE;
-
-ALTER TABLE `user_interest`
-ADD CONSTRAINT `user_interest_user_id`
+ADD CONSTRAINT `user_interest_ibfk_1`
   FOREIGN KEY (`user_id`)
   REFERENCES `user`(`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION,
-ADD CONSTRAINT `user_interest_interest_id`
+ADD CONSTRAINT `user_interest_ibfk_2`
   FOREIGN KEY (`interest_id`)
   REFERENCES `interest`(`id`)
   ON DELETE NO ACTION
   ON UPDATE NO ACTION;
 
 ALTER TABLE `user`
-ADD INDEX `user_city_id_idx` (`city_id` ASC) VISIBLE;
-ALTER TABLE `user`
-ADD CONSTRAINT `user_city_id`
+ADD CONSTRAINT `user_ibfk_1`
   FOREIGN KEY (`city_id`)
   REFERENCES `city`(`id`)
   ON DELETE NO ACTION
