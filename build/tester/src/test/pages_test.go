@@ -44,7 +44,17 @@ func PagesDataProvider() []PageTestDataProvider {
 	}
 }
 
-func BenchmarkPages(b *testing.B) {
+/*func BenchmarkPagesSequential(b *testing.B){
+	benchmarkPages(b, benchmarkPageSequential)
+}*/
+
+func BenchmarkPagesParallel(b *testing.B){
+	benchmarkPages(b,
+		func(url string) func (b *testing.B) { return benchmarkPageParallel(url, 20)},
+	)
+}
+
+func benchmarkPages(b *testing.B, benchmarkPageFunction func(url string) func (b *testing.B) ) {
 	pagesDataProvider := PagesDataProvider()
 	seedDataParams := helper.GetSeedDataParams()
 
@@ -67,14 +77,14 @@ func BenchmarkPages(b *testing.B) {
 						useIndexPage.UseIndex,
 						pageUrl,
 					),
-					benchmarkPage(pageUrl),
+					benchmarkPageFunction(pageUrl),
 				)
 			}
 		}
 	}
 }
 
-func benchmarkPage(url string) func (b *testing.B) {
+func benchmarkPageSequential(url string) func (b *testing.B) {
 	return func(b *testing.B) {
 		errorCounter := 0
 		successCounter := 0
@@ -89,6 +99,40 @@ func benchmarkPage(url string) func (b *testing.B) {
 				successCounter++
 			}
 		}
-		//b.Logf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
+		//defer b.Logf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
+	}
+}
+
+func benchmarkPageParallel(url string, threads int) func (b *testing.B) {
+	return func(b *testing.B) {
+		errorChain := make(chan int, threads)
+		successChan := make(chan int, threads)
+		errorCounter := 0
+		successCounter := 0
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			b.StartTimer()
+			go testPageSingleThead(url, errorChain, successChan, i)
+			select {
+				case <-successChan:
+					successCounter += 1
+				case <-errorChain:
+					errorCounter += 1
+			}
+			b.StopTimer()
+		}
+		close(errorChain)
+		close(successChan)
+		fmt.Printf("\nsuccess: %d, errors: %d\n", successCounter, errorCounter)
+	}
+}
+
+func testPageSingleThead(url string, errorChain chan int, successChan chan int, num int){
+	
+	err := helper.TestPageSingleThead(url)
+	if err != nil {
+		errorChain <- 1
+	} else {
+		successChan <- 1
 	}
 }

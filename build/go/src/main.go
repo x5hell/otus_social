@@ -16,6 +16,12 @@ func main()  {
 	mux.HandleFunc("/user-profile-list", controller.Middleware(
 		controller.UserProfileList, controller.UseSession))
 
+	mux.HandleFunc("/search-form", controller.Middleware(
+		controller.SearchForm, controller.UseSession))
+
+	mux.HandleFunc("/search", controller.Middleware(
+		controller.Search, controller.UseSession))
+
 	mux.HandleFunc("/user-profile-page", controller.Middleware(
 		controller.UserProfilePage, controller.UseSession))
 

@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-func RegistrationForm(response http.ResponseWriter, request *http.Request)  {
+func SearchForm(response http.ResponseWriter, request *http.Request)  {
 	htmlTemplate, err := template.OpenUserTemplate("search-form.html")
 	if err != nil {
 		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
-		data, err := model.GetRegistrationFormData()
+		data, err := model.GetSearchFormData()
 		if err != nil {
 			controllerResponse.GetTemplateDataError(response, err)
 		} else {

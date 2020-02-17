@@ -7,7 +7,83 @@ import (
 	"database/sql"
 	"entity"
 	"fmt"
+	"model"
+	"strconv"
+	"strings"
 )
+
+type UserSearchResultItem struct {
+	FirstName string   `json:"first-name"`
+	LastName  string   `json:"last-name"`
+	Age       string   `json:"age"`
+	Sex       string   `json:"sex"`
+	City      string   `json:"city"`
+}
+
+func SearchUsers(search model.SearchRequest, limit int) (userList []entity.User, err error) {
+	sqlQueryConditions, sqlQueryParameters := getSqlQueryConditionsData(search)
+	sqlQueryCondition := ""
+	if len(sqlQueryParameters) > 0 {
+		sqlQueryCondition = "WHERE " + strings.Join(sqlQueryConditions, " AND ") + " "
+	}
+	sqlQueryParameters = append(sqlQueryParameters, strconv.Itoa(limit))
+	rows, err := database.Query(
+		"SELECT id, login, first_name, last_name, age, sex, city_id " +
+			"FROM user " +
+			"ORDER BY id DESC " +
+			sqlQueryCondition +
+			"LIMIT ?", convert.StringListToInterfaceList(sqlQueryParameters)...)
+	if err != nil {
+		handler.ErrorLog(err)
+		return nil, err
+	}
+	userList = []entity.User{}
+	for rows.Next() {
+		user := entity.User{}
+		err = rows.Scan(
+			&user.ID, &user.Login, &user.FirstName, &user.LastName, &user.Age, &user.Sex, &user.CityId)
+		if err != nil {
+			handler.ErrorLog(err)
+			return userList, err
+		}
+		userList = append(userList, user)
+	}
+	return userList, err
+}
+
+func trimSearchRequest(search model.SearchRequest) model.SearchRequest {
+	search.FirstName = strings.TrimSpace(search.FirstName)
+	search.LastName = strings.TrimSpace(search.LastName)
+	search.Sex = strings.TrimSpace(search.Sex)
+	search.AgeFrom = strings.TrimSpace(search.AgeFrom)
+	search.AgeTo = strings.TrimSpace(search.AgeTo)
+	search.City = strings.TrimSpace(search.City)
+	return search
+}
+
+func getSqlQueryConditionsData(search model.SearchRequest) (sqlQueryConditions []string, sqlQueryParameters []string) {
+	if len(search.FirstName) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "first_name LIKE ?")
+		sqlQueryParameters = append(sqlQueryParameters, fmt.Sprintf("%s%%", search.FirstName))
+	}
+	if len(search.LastName) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "last_name LIKE ?")
+		sqlQueryParameters = append(sqlQueryParameters, fmt.Sprintf("%s%%", search.LastName))
+	}
+	if len(search.AgeFrom) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "age >= ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.AgeFrom)
+	}
+	if len(search.AgeTo) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "age <= ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.AgeTo)
+	}
+	if len(search.City) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "city_id = ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.City)
+	}
+	return sqlQueryConditions, sqlQueryParameters
+}
 
 func GetLastUsers(limit int) (userList []entity.User, err error) {
 	rows, err := database.Query(

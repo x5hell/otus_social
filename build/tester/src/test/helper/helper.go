@@ -6,11 +6,14 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
+const domain = "http://social_go:8001/"
+const requestTimeout = 10 * time.Second
+
 func TestPageSingleThead(url string) error {
-	httpClient := http.Client{}
-	domain := "http://social_go:8001/"
+	httpClient := http.Client{Timeout: requestTimeout}
 	fullUrl := domain + url
 	response, err := httpClient.Get(fullUrl)
 	if err != nil {
