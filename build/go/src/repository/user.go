@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"entity"
 	"fmt"
-	"model"
 	"strconv"
 	"strings"
 )
@@ -20,18 +19,33 @@ type UserSearchResultItem struct {
 	City      string   `json:"city"`
 }
 
-func SearchUsers(search model.SearchRequest, limit int) (userList []entity.User, err error) {
+type UserSearchRequest struct {
+	FirstName string   `name:"first-name" validation:"symbolsMax=25,regex=^[а-яА-ЯёЁa-zA-Z\\-]*$"`
+	LastName  string   `name:"last-name" validation:"symbolsMax=25,regex=^[а-яА-ЯёЁa-zA-Z\\-]*$"`
+	AgeFrom   string   `name:"age-from"`
+	AgeTo     string   `name:"age-to"`
+	Sex       string   `name:"sex" validation:"regex=^(male|female|)$"`
+	Interests []string `name:"searchFieldNameInterests"`
+	City      string   `name:"searchFieldNameCity"`
+}
+
+func SearchUsers(search UserSearchRequest, limit int) (userList []entity.User, err error) {
 	sqlQueryConditions, sqlQueryParameters := getSqlQueryConditionsData(search)
 	sqlQueryCondition := ""
 	if len(sqlQueryParameters) > 0 {
 		sqlQueryCondition = "WHERE " + strings.Join(sqlQueryConditions, " AND ") + " "
 	}
+
+
+	fmt.Println(sqlQueryCondition, sqlQueryParameters, search)
+
+
 	sqlQueryParameters = append(sqlQueryParameters, strconv.Itoa(limit))
 	rows, err := database.Query(
 		"SELECT id, login, first_name, last_name, age, sex, city_id " +
 			"FROM user " +
-			"ORDER BY id DESC " +
 			sqlQueryCondition +
+			"ORDER BY id DESC " +
 			"LIMIT ?", convert.StringListToInterfaceList(sqlQueryParameters)...)
 	if err != nil {
 		handler.ErrorLog(err)
@@ -51,7 +65,7 @@ func SearchUsers(search model.SearchRequest, limit int) (userList []entity.User,
 	return userList, err
 }
 
-func trimSearchRequest(search model.SearchRequest) model.SearchRequest {
+func trimSearchRequest(search UserSearchRequest) UserSearchRequest {
 	search.FirstName = strings.TrimSpace(search.FirstName)
 	search.LastName = strings.TrimSpace(search.LastName)
 	search.Sex = strings.TrimSpace(search.Sex)
@@ -61,7 +75,7 @@ func trimSearchRequest(search model.SearchRequest) model.SearchRequest {
 	return search
 }
 
-func getSqlQueryConditionsData(search model.SearchRequest) (sqlQueryConditions []string, sqlQueryParameters []string) {
+func getSqlQueryConditionsData(search UserSearchRequest) (sqlQueryConditions []string, sqlQueryParameters []string) {
 	if len(search.FirstName) > 0 {
 		sqlQueryConditions = append(sqlQueryConditions, "first_name LIKE ?")
 		sqlQueryParameters = append(sqlQueryParameters, fmt.Sprintf("%s%%", search.FirstName))
@@ -82,6 +96,11 @@ func getSqlQueryConditionsData(search model.SearchRequest) (sqlQueryConditions [
 		sqlQueryConditions = append(sqlQueryConditions, "city_id = ?")
 		sqlQueryParameters = append(sqlQueryParameters, search.City)
 	}
+	if len(search.Sex) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "sex = ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.Sex)
+	}
+
 	return sqlQueryConditions, sqlQueryParameters
 }
 

@@ -26,12 +26,21 @@ type OkMessage struct {
 	Ok string `json:"ok"`
 }
 
+type OkData struct {
+	Ok interface{} `json:"ok"`
+}
+
 type ErrorForm struct {
 	Error map[string]string `json:"error"`
 }
 
 func JsonOkMessage(okMessage string, response http.ResponseWriter) {
 	result, _ := json.Marshal(OkMessage{Ok: okMessage})
+	fmt.Fprintf(response, string(result))
+}
+
+func JsonOkData(okData interface{}, response http.ResponseWriter) {
+	result, _ := json.Marshal(OkData{Ok: okData})
 	fmt.Fprintf(response, string(result))
 }
 

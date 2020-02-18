@@ -1,7 +1,7 @@
 {{define "title"}}Поиск{{end}}
 
 {{define "content"}}
-    <form id="login-form" method="POST" action="/search" class="container">
+    <form id="search-form" method="POST" action="/search" class="container">
         <h1>Поиск</h1>
         <div class="dropdown-divider col-sm-8"></div>
         <p class="row">
@@ -23,8 +23,8 @@
             <label class="col-sm-4" for="sex">Пол:</label>
             <select class="col-sm-4 validation-element" id="sex" name="sex">
                 <option value="">Не выбран</option>
-                <option value="1">Мужской</option>
-                <option value="2">Женский</option>
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
             </select>
         </p>
         <p class="row">
@@ -35,7 +35,47 @@
                 {{end}}
             </select>
         </p>
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <button id="search-button" type="submit" class="btn btn-primary col-sm-8 validation-element">Найти</button>
+        </p>
     </form>
+    <div id="searchResult"></div>
+    <template id="userTemplate">
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <b class="col-sm-4">Имя:</b>
+            <span class="col-sm-4"><a href="/user-profile-page?id=###userId###">###firstName### ###lastName###</a></span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Возраст:</b>
+            <span class="col-sm-4">###Age###</span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Пол:</b>
+            <span class="col-sm-4">###sex###</span>
+        </p>
+        ###userCityTemplate###
+        ###userInterestList###
+        <div class="dropdown-divider col-sm-8"></div>
+    </template>
+    <template id="userCityTemplate">
+        <p class="row">
+            <b class="col-sm-4">Город:</b>
+            <span class="col-sm-4">###cityName###</span>
+        </p>
+    </template>
+    <template id="userInterestListTemplate">
+        <p class="row">
+            <b class="col-sm-4">Интересы:</b>
+            <span class="col-sm-4">###userInterestList###</span>
+        </p>
+    </template>
+    <template id="userListNotFoundTemplate">
+        <div class="dropdown-divider col-sm-8"></div>
+            <i>По заданным критериям людей не найдено</i>
+        <div class="dropdown-divider col-sm-8"></div>
+    </template>
 {{end}}
 
 {{define "custom-scripts"}}
