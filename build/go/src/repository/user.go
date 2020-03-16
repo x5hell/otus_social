@@ -7,7 +7,102 @@ import (
 	"database/sql"
 	"entity"
 	"fmt"
+	"strconv"
+	"strings"
 )
+
+type UserSearchResultItem struct {
+	FirstName string   `json:"first-name"`
+	LastName  string   `json:"last-name"`
+	Age       string   `json:"age"`
+	Sex       string   `json:"sex"`
+	City      string   `json:"city"`
+}
+
+type UserSearchRequest struct {
+	FirstName string   `name:"first-name" validation:"symbolsMax=25,regex=^[а-яА-ЯёЁa-zA-Z\\-]*$"`
+	LastName  string   `name:"last-name" validation:"symbolsMax=25,regex=^[а-яА-ЯёЁa-zA-Z\\-]*$"`
+	AgeFrom   string   `name:"age-from"`
+	AgeTo     string   `name:"age-to"`
+	Sex       string   `name:"sex" validation:"regex=^(male|female|)$"`
+	Interests []string `name:"searchFieldNameInterests"`
+	City      string   `name:"searchFieldNameCity"`
+}
+
+func SearchUsers(search UserSearchRequest, limit int) (userList []entity.User, err error) {
+	sqlQueryConditions, sqlQueryParameters := getSqlQueryConditionsData(search)
+	sqlQueryCondition := ""
+	if len(sqlQueryParameters) > 0 {
+		sqlQueryCondition = "WHERE " + strings.Join(sqlQueryConditions, " AND ") + " "
+	}
+	sqlSelectQuery := "SELECT id, login, first_name, last_name, age, sex, city_id " +
+		"FROM user " +
+		sqlQueryCondition +
+		"ORDER BY id DESC " +
+		"LIMIT ?"
+
+	sqlQueryParameters = append(sqlQueryParameters, strconv.Itoa(limit))
+
+	fmt.Println(sqlSelectQuery, sqlQueryParameters)
+
+	rows, err := database.Query(
+		sqlSelectQuery, convert.StringListToInterfaceList(sqlQueryParameters)...)
+	if err != nil {
+		handler.ErrorLog(err)
+		return nil, err
+	}
+	userList = []entity.User{}
+	for rows.Next() {
+		user := entity.User{}
+		err = rows.Scan(
+			&user.ID, &user.Login, &user.FirstName, &user.LastName, &user.Age, &user.Sex, &user.CityId)
+		if err != nil {
+			handler.ErrorLog(err)
+			return userList, err
+		}
+		userList = append(userList, user)
+	}
+	return userList, err
+}
+
+func trimSearchRequest(search UserSearchRequest) UserSearchRequest {
+	search.FirstName = strings.TrimSpace(search.FirstName)
+	search.LastName = strings.TrimSpace(search.LastName)
+	search.Sex = strings.TrimSpace(search.Sex)
+	search.AgeFrom = strings.TrimSpace(search.AgeFrom)
+	search.AgeTo = strings.TrimSpace(search.AgeTo)
+	search.City = strings.TrimSpace(search.City)
+	return search
+}
+
+func getSqlQueryConditionsData(search UserSearchRequest) (sqlQueryConditions []string, sqlQueryParameters []string) {
+	if len(search.FirstName) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "first_name LIKE ?")
+		sqlQueryParameters = append(sqlQueryParameters, fmt.Sprintf("%s%%", search.FirstName))
+	}
+	if len(search.LastName) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "last_name LIKE ?")
+		sqlQueryParameters = append(sqlQueryParameters, fmt.Sprintf("%s%%", search.LastName))
+	}
+	if len(search.AgeFrom) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "age >= ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.AgeFrom)
+	}
+	if len(search.AgeTo) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "age <= ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.AgeTo)
+	}
+	if len(search.City) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "city_id = ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.City)
+	}
+	if len(search.Sex) > 0 {
+		sqlQueryConditions = append(sqlQueryConditions, "sex = ?")
+		sqlQueryParameters = append(sqlQueryParameters, search.Sex)
+	}
+
+	return sqlQueryConditions, sqlQueryParameters
+}
 
 func GetLastUsers(limit int) (userList []entity.User, err error) {
 	rows, err := database.Query(

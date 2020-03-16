@@ -8,7 +8,7 @@ import (
 )
 
 func RegistrationForm(response http.ResponseWriter, request *http.Request)  {
-	htmlTemplate, err := template.OpenUserTemplate("registration-form.html")
+	htmlTemplate, err := template.OpenUserTemplate("search-form.html")
 	if err != nil {
 		controllerResponse.TemplateGeneratingError(response, err)
 	} else {

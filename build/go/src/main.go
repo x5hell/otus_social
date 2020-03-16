@@ -4,9 +4,8 @@ import (
 	"controller"
 	"log"
 	"net/http"
+	"os"
 )
-
-const AppPort = "8001"
 
 func main()  {
 	fs := http.FileServer(http.Dir("static"))
@@ -15,6 +14,12 @@ func main()  {
 
 	mux.HandleFunc("/user-profile-list", controller.Middleware(
 		controller.UserProfileList, controller.UseSession))
+
+	mux.HandleFunc("/search-form", controller.Middleware(
+		controller.SearchForm, controller.UseSession))
+
+	mux.HandleFunc("/search", controller.Middleware(
+		controller.Search, controller.UseSession))
 
 	mux.HandleFunc("/user-profile-page", controller.Middleware(
 		controller.UserProfilePage, controller.UseSession))
@@ -40,5 +45,9 @@ func main()  {
 	mux.HandleFunc("/", controller.Middleware(
 		nil, controller.RedirectMainPage))
 
-	log.Fatal(http.ListenAndServe("0.0.0.0:" + AppPort, mux))
+	log.Fatal(http.ListenAndServe("0.0.0.0:" + getPort(), mux))
+}
+
+func getPort() string {
+	return os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT")
 }

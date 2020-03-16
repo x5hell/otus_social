@@ -1,0 +1,84 @@
+{{define "title"}}Поиск{{end}}
+
+{{define "content"}}
+    <form id="search-form" method="POST" action="/search" class="container">
+        <h1>Поиск</h1>
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <label class="col-sm-4" for="first-name">Имя:</label>
+            <input class="col-sm-4 validation-element" id="first-name" type="text" name="first-name"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="last-name">Фамилия:</label>
+            <input class="col-sm-4 validation-element" id="last-name" type="text" name="last-name"/>
+        </p>
+        <p class="row">
+            <span class="col-sm-4">Возраст:</span>
+            <label class="col-sm-1" for="age-from">с</label>
+            <input class="col-sm-1 validation-element" id="age-from" type="number" min="1" name="age-from"/>
+            <label class="col-sm-1" for="age-to">по</label>
+            <input class="col-sm-1 validation-element" id="age-to" type="number" min="1" name="age-to"/>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="sex">Пол:</label>
+            <select class="col-sm-4 validation-element" id="sex" name="sex">
+                <option value="">Не выбран</option>
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
+            </select>
+        </p>
+        <p class="row">
+            <label class="col-sm-4" for="city">Город:</label>
+            <select class="col-sm-4 validation-element" id="city" name="city">
+                <option value="">Не указан</option>
+                {{range .CityList}}<option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+            </select>
+        </p>
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <button id="search-button" type="submit" class="btn btn-primary col-sm-8 validation-element">Найти</button>
+        </p>
+    </form>
+    <div id="searchResult"></div>
+    <template id="userTemplate">
+        <div class="dropdown-divider col-sm-8"></div>
+        <p class="row">
+            <b class="col-sm-4">Имя:</b>
+            <span class="col-sm-4"><a href="/user-profile-page?id=###userId###">###firstName### ###lastName###</a></span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Возраст:</b>
+            <span class="col-sm-4">###Age###</span>
+        </p>
+        <p class="row">
+            <b class="col-sm-4">Пол:</b>
+            <span class="col-sm-4">###sex###</span>
+        </p>
+        ###userCityTemplate###
+        ###userInterestList###
+        <div class="dropdown-divider col-sm-8"></div>
+    </template>
+    <template id="userCityTemplate">
+        <p class="row">
+            <b class="col-sm-4">Город:</b>
+            <span class="col-sm-4">###cityName###</span>
+        </p>
+    </template>
+    <template id="userInterestListTemplate">
+        <p class="row">
+            <b class="col-sm-4">Интересы:</b>
+            <span class="col-sm-4">###userInterestList###</span>
+        </p>
+    </template>
+    <template id="userListNotFoundTemplate">
+        <div class="dropdown-divider col-sm-8"></div>
+            <i>По заданным критериям людей не найдено</i>
+        <div class="dropdown-divider col-sm-8"></div>
+    </template>
+{{end}}
+
+{{define "custom-scripts"}}
+    <script src="/static/js/form.js"></script>
+    <script src="/static/js/search.js"></script>
+{{end}}

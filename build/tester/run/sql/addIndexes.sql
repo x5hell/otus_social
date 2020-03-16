@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD INDEX `user_ib_2` (`last_name`) VISIBLE;

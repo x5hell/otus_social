@@ -11,12 +11,16 @@ type UserProfileList struct {
 	UserIdToInterestList 	map[int][]entity.Interest
 }
 
-func GetUserProfileListData(limit int) (data UserProfileList, err error) {
+func GetLastUsersProfileListData(limit int) (data UserProfileList, err error) {
 	lastUsers, err := repository.GetLastUsers(limit)
 	if err != nil {
 		return data, err
 	}
-	data.Users = lastUsers
+	return GetUserProfileListData(lastUsers)
+}
+
+func GetUserProfileListData(userList []entity.User) (data UserProfileList, err error) {
+	data.Users = userList
 	data.CityList, err = repository.GetUserCityList(data.Users)
 	if err != nil {
 		return data, err

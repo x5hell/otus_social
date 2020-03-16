@@ -1,18 +1,18 @@
 version: '3.1'
 services:
   web:
-    container_name: social_go
+    container_name: ${SOCIAL_SITE_CONTAINER_NAME}
     build: ./build/go
     image: social_go:master
     ports:
-      - "80:8001"
+      - "${SOCIAL_SITE_EXTERNAL_PORT}:${SOCIAL_SITE_INTERNAL_PORT}"
     env_file: .env
+    environment:
+      SOCIAL_SITE_INTERNAL_PORT: ${SOCIAL_SITE_INTERNAL_PORT}
     volumes:
       - ./build/go/src:/go/src/
     depends_on:
       - db
-    networks:
-      - default
   db:
     container_name: social_mysql
     image: mysql:8.0.18
@@ -23,9 +23,3 @@ services:
     volumes:
       - ./build/mysql/init_sql:/docker-entrypoint-initdb.d
       - ./build/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
-    networks:
-      - default
-networks:
-  default:
-    ipam:
-      driver: default

@@ -14,7 +14,7 @@ func UserProfileList(response http.ResponseWriter, request *http.Request)  {
 	if err != nil {
 		controllerResponse.TemplateGeneratingError(response, err)
 	} else {
-		data, err := model.GetUserProfileListData(UserProfileListLimit)
+		data, err := model.GetLastUsersProfileListData(UserProfileListLimit)
 		if err != nil {
 			controllerResponse.GetTemplateDataError(response, err)
 		}

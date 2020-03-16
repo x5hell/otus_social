@@ -1,0 +1,1 @@
+ALTER TABLE `user` DROP INDEX `user_ib_2`;
