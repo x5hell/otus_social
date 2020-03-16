@@ -4,9 +4,8 @@ import (
 	"controller"
 	"log"
 	"net/http"
+	"os"
 )
-
-const AppPort = "8001"
 
 func main()  {
 	fs := http.FileServer(http.Dir("static"))
@@ -46,5 +45,9 @@ func main()  {
 	mux.HandleFunc("/", controller.Middleware(
 		nil, controller.RedirectMainPage))
 
-	log.Fatal(http.ListenAndServe("0.0.0.0:" + AppPort, mux))
+	log.Fatal(http.ListenAndServe("0.0.0.0:" + getPort(), mux))
+}
+
+func getPort() string {
+	return os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT")
 }

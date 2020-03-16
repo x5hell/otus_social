@@ -35,18 +35,18 @@ func SearchUsers(search UserSearchRequest, limit int) (userList []entity.User, e
 	if len(sqlQueryParameters) > 0 {
 		sqlQueryCondition = "WHERE " + strings.Join(sqlQueryConditions, " AND ") + " "
 	}
-
-
-	fmt.Println(sqlQueryCondition, sqlQueryParameters, search)
-
+	sqlSelectQuery := "SELECT id, login, first_name, last_name, age, sex, city_id " +
+		"FROM user " +
+		sqlQueryCondition +
+		"ORDER BY id DESC " +
+		"LIMIT ?"
 
 	sqlQueryParameters = append(sqlQueryParameters, strconv.Itoa(limit))
+
+	fmt.Println(sqlSelectQuery, sqlQueryParameters)
+
 	rows, err := database.Query(
-		"SELECT id, login, first_name, last_name, age, sex, city_id " +
-			"FROM user " +
-			sqlQueryCondition +
-			"ORDER BY id DESC " +
-			"LIMIT ?", convert.StringListToInterfaceList(sqlQueryParameters)...)
+		sqlSelectQuery, convert.StringListToInterfaceList(sqlQueryParameters)...)
 	if err != nil {
 		handler.ErrorLog(err)
 		return nil, err

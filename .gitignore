@@ -9,5 +9,7 @@
 .idea
 build/go/pkg
 build/go/src/main
-build/tester/src/main
 build/go/src/github.com
+build/tester/src/main
+build/tester/src/github.com
+build/tester/src/golang.org

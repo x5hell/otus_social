@@ -2,19 +2,42 @@ package helper
 
 import (
 	"component/fixture"
+	"component/handler"
 	"generator"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
+	"os"
 	"time"
 )
 
-const domain = "http://social_go:8001/"
 const requestTimeout = 10 * time.Second
+
+func getSocialDomain() string {
+	return "http://" +
+		os.ExpandEnv("$SOCIAL_SITE_CONTAINER_NAME") +
+		":" +
+		os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT") + "/"
+}
+
+func GetSocialIp() string {
+	ipList, err := net.LookupIP(os.ExpandEnv("$SOCIAL_SITE_CONTAINER_NAME"))
+
+	if err != nil {
+		handler.ErrorLog(err)
+		return ""
+	}
+	ip := ipList[0]
+	return "http://" +
+		ip.String() +
+		":" +
+		os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT")
+}
 
 func TestPageSingleThead(url string) error {
 	httpClient := http.Client{Timeout: requestTimeout}
-	fullUrl := domain + url
+	fullUrl := getSocialDomain() + url
 	response, err := httpClient.Get(fullUrl)
 	if err != nil {
 		return err
@@ -59,4 +82,3 @@ func RemoveIndexes(seedDataParams generator.SeedDataParams) {
 		log.Fatal(err)
 	}
 }
-

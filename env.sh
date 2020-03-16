@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+export SOCIAL_SITE_CONTAINER_NAME="social_go"
+export SOCIAL_SITE_EXTERNAL_PORT="8000"
+export SOCIAL_SITE_INTERNAL_PORT="8001"

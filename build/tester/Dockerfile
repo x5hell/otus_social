@@ -4,7 +4,8 @@ WORKDIR /go/src/
 
 COPY run /run
 
-RUN apk add mysql-client mariadb-connector-c gcc g++ wrk && \
+RUN apk add mysql-client mariadb-connector-c gcc g++ wrk git lua luajit lua5.1-socket && \
+	go get github.com/golang/freetype && \
     chmod +x /run/*.sh
 
 ENTRYPOINT ["sh", "/run/run.sh"]

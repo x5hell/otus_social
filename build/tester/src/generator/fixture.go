@@ -1,11 +1,11 @@
 package generator
 
 import (
+	"component/config"
 	"component/file"
 	"component/handler"
 	"converter"
 	"fmt"
-	"os"
 	"strconv"
 )
 
@@ -72,9 +72,9 @@ func GetSeedDataParams() (seedDataParams SeedDataParams, err error) {
 	}
 
 	for _, envName := range envList {
-		envValue, envExists := os.LookupEnv(envName)
-		if envExists == false {
-			return seedDataParams, fmt.Errorf("envoirment variable %s not set", envName)
+		envValue, err := config.GetEnv(envName)
+		if err != nil {
+			return seedDataParams, err
 		}
 		if _, isInt := intMap[envName]; isInt {
 			intValue, err := strconv.Atoi(envValue)
