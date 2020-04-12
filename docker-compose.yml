@@ -12,14 +12,39 @@ services:
     volumes:
       - ./build/go/src:/go/src/
     depends_on:
-      - db
-  db:
-    container_name: social_mysql
+      - db-master
+  db-master:
+    container_name: ${SOCIAL_MASTER_CONTAINER_NAME}
     image: mysql:8.0.18
     restart: always
     ports:
       - "3306:3306"
     env_file: .env
     volumes:
-      - ./build/mysql/init_sql:/docker-entrypoint-initdb.d
-      - ./build/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-master/init_sql:/docker-entrypoint-initdb.d
+      - ./build/config/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-master/master.cnf:/etc/mysql/conf.d/master.cnf
+  social_mysql_slave:
+    image: mysql:8.0.18
+    restart: always
+    env_file: .env
+    volumes:
+      - ./build/mysql-slave/init_sql:/docker-entrypoint-initdb.d
+      - ./build/config/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-slave/slave.cnf:/etc/mysql/conf.d/slave.cnf
+      - ./build/mysql-slave/helper:/helper
+    depends_on:
+      - db-master
+    environment:
+      SOCIAL_MASTER_CONTAINER_NAME: ${SOCIAL_MASTER_CONTAINER_NAME}
+  nginx:
+    container_name: soacial_load_balancer
+    image: nginx:1.17.9-alpine
+    volumes:
+      - ./build/config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - social_mysql_slave
+    environment:
+      SOCIAL_SLAVE_SERVICE_NAME: ${SOCIAL_SLAVE_SERVICE_NAME}
+    ports:
+      - "3307:3307"

@@ -12,17 +12,17 @@ services:
     volumes:
       - ./build/go/src:/go/src/
     depends_on:
-      - db
-  db:
-    container_name: social_mysql
+      - db-master
+  db-master:
+    container_name: social_mysql_master
     image: mysql:8.0.18
     restart: always
     ports:
       - "3306:3306"
     env_file: .env
     volumes:
-      - ./build/mysql/init_sql:/docker-entrypoint-initdb.d
-      - ./build/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-master/init_sql:/docker-entrypoint-initdb.d
+      - ./build/mysql-master/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
   tester:
     container_name: social_tester
     build: ./build/tester
@@ -34,5 +34,5 @@ services:
     volumes:
       - ./build/tester/src:/go/src/
     depends_on:
-      - db
+      - db-master
       - web

@@ -1,3 +1,5 @@
+INSERT INTO `server_id` (`id`) VALUES (1);
+
 INSERT INTO city
     (`id`, `name`)
 VALUES

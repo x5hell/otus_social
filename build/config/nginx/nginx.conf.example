@@ -1,0 +1,12 @@
+user  nginx;
+
+events {
+    worker_connections   1000;
+}
+
+stream {
+    server {
+        listen 3307;
+        proxy_pass SLAVE_SERVICE_NAME:3306;
+    }
+}
