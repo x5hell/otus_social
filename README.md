@@ -40,3 +40,5 @@ docker exec -it social_tester sh
 /go/src/main -action testWithIndex
 ```
 результаты тестирования в /go/src/test/result
+
+## Homework-3
