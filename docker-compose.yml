@@ -1,9 +1,9 @@
 version: '3.1'
 services:
-  web:
-    container_name: ${SOCIAL_SITE_CONTAINER_NAME}
+  go:
     build: ./build/go
     image: social_go:master
+    container_name: ${PROJECT_NAME}_${SOCIAL_SITE_CONTAINER_NAME}
     ports:
       - "${SOCIAL_SITE_EXTERNAL_PORT}:${SOCIAL_SITE_INTERNAL_PORT}"
     env_file: .env
@@ -12,10 +12,10 @@ services:
     volumes:
       - ./build/go/src:/go/src/
     depends_on:
-      - db-master
-  db-master:
-    container_name: ${SOCIAL_MASTER_CONTAINER_NAME}
+      - ${SOCIAL_MASTER_CONTAINER_NAME}
+  mysql_master:
     image: mysql:8.0.18
+    container_name: ${PROJECT_NAME}_${SOCIAL_MASTER_CONTAINER_NAME}
     restart: always
     ports:
       - "3306:3306"
@@ -24,7 +24,7 @@ services:
       - ./build/mysql-master/init_sql:/docker-entrypoint-initdb.d
       - ./build/config/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
       - ./build/mysql-master/master.cnf:/etc/mysql/conf.d/master.cnf
-  social_mysql_slave:
+  mysql_slave:
     image: mysql:8.0.18
     restart: always
     env_file: .env
@@ -34,17 +34,18 @@ services:
       - ./build/mysql-slave/slave.cnf:/etc/mysql/conf.d/slave.cnf
       - ./build/mysql-slave/helper:/helper
     depends_on:
-      - db-master
+      - ${SOCIAL_MASTER_CONTAINER_NAME}
     environment:
-      SOCIAL_MASTER_CONTAINER_NAME: ${SOCIAL_MASTER_CONTAINER_NAME}
-  nginx:
-    container_name: soacial_load_balancer
+      SOCIAL_MASTER_CONTAINER_NAME: ${PROJECT_NAME}_${SOCIAL_MASTER_CONTAINER_NAME}
+    command: ["bash", "/helper/start-script.sh"]
+  load_balancer:
     image: nginx:1.17.9-alpine
+    container_name: ${PROJECT_NAME}_${LOAD_BALANCER_CONTAINER_NAME}
     volumes:
       - ./build/config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - social_mysql_slave
+      - ${SOCIAL_SLAVE_SERVICE_NAME}
     environment:
-      SOCIAL_SLAVE_SERVICE_NAME: ${SOCIAL_SLAVE_SERVICE_NAME}
+      SOCIAL_SLAVE_SERVICE_NAME: ${PROJECT_NAME}_${SOCIAL_SLAVE_SERVICE_NAME}
     ports:
       - "3307:3307"
