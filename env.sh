@@ -1,9 +1,2 @@
 #!/usr/bin/bash
-export PROJECT_NAME="social"
-export SOCIAL_MASTER_CONTAINER_NAME="mysql_master"
-export SOCIAL_SLAVE_SERVICE_NAME="mysql_slave"
-export SOCIAL_SITE_CONTAINER_NAME="go"
-export LOAD_BALANCER_CONTAINER_NAME="load_balancer"
-export SOCIAL_SITE_EXTERNAL_PORT="8000"
-export SOCIAL_SITE_INTERNAL_PORT="8001"
-export SLAVE_INSTANCES=3
+export $(grep -v '^#' .env | xargs)

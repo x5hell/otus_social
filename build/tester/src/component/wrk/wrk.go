@@ -202,7 +202,7 @@ func ParseContentPerSecond(contentPerSecond string, regexp *regexp.Regexp) (resu
 }
 
 func RunWrkUrlWithDefaultParameters(relativeUrl string, connections int, script string) (result StatisticWrk, err error) {
-	fullUrl := helper.GetSocialIp() + relativeUrl
+	fullUrl := helper.GetSiteIp() + relativeUrl
 	return RunWrk(
 		fullUrl, 
 		DefaultParameterValueThreads, 

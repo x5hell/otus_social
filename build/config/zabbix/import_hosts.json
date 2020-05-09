@@ -1,0 +1,26 @@
+{
+  "jsonrpc": "2.0",
+  "method": "configuration.import",
+  "id": 2,
+  "auth": "$api_token",
+  "params": {
+    "format": "xml",
+    "source": "$import_xml",
+    "rules": {
+      "hosts": {
+        "createMissing": true,
+        "updateExisting": true
+      },
+      "items": {
+        "createMissing": true,
+        "updateExisting": true,
+        "deleteMissing": true
+      },
+      "graphs": {
+        "createMissing": true,
+        "updateExisting": true,
+        "deleteMissing": true
+      }
+    }
+  }
+}

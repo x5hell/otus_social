@@ -1,38 +1,130 @@
 version: '3.1'
 services:
   web:
-    container_name: ${SOCIAL_SITE_CONTAINER_NAME}
-    build: ./build/go
-    image: social_go:master
+    build: ./build/web
+    image: ${PROJECT_NAME}_web:master
+    container_name: ${PROJECT_NAME}_${WEB_SITE_CONTAINER_NAME}
     ports:
-      - "${SOCIAL_SITE_EXTERNAL_PORT}:${SOCIAL_SITE_INTERNAL_PORT}"
+      - "${WEB_SITE_EXTERNAL_PORT}:${WEB_SITE_INTERNAL_PORT}"
     env_file: .env
     environment:
-      SOCIAL_SITE_INTERNAL_PORT: ${SOCIAL_SITE_INTERNAL_PORT}
+      MYSQL_MASTER_HOST: ${MYSQL_MASTER_CONTAINER_NAME}
+      MYSQL_MASTER_USER: ${MYSQL_USER}
+      MYSQL_MASTER_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_SLAVE_HOST: ${MYSQL_SLAVE_SERVICE_NAME}
+      MYSQL_SLAVE_USER: ${MYSQL_REPLICA_USER}
+      MYSQL_SLAVE_PASSWORD: ${MYSQL_REPLICA_PASSWORD}
+      WEB_SITE_INTERNAL_PORT: ${WEB_SITE_INTERNAL_PORT}
     volumes:
-      - ./build/go/src:/go/src/
+      - ./build/web/src:/go/src/
     depends_on:
-      - db-master
-  db-master:
-    container_name: social_mysql_master
+      - ${MYSQL_MASTER_CONTAINER_NAME}
+  mysql_master:
     image: mysql:8.0.18
+    container_name: ${PROJECT_NAME}_${MYSQL_MASTER_CONTAINER_NAME}
     restart: always
     ports:
       - "3306:3306"
     env_file: .env
     volumes:
       - ./build/mysql-master/init_sql:/docker-entrypoint-initdb.d
-      - ./build/mysql-master/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/config/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-master/master.cnf:/etc/mysql/conf.d/master.cnf
+      - ./build/config/helper:/helper
+      - ./build/mysql-master/run/:/start
+    command: ["bash", "/start/start-script.sh"]
+  mysql_slave:
+    image: mysql:8.0.18
+    restart: always
+    env_file: .env
+    volumes:
+      - ./build/mysql-slave/init_sql:/docker-entrypoint-initdb.d
+      - ./build/config/mysql/mycustom.cnf:/etc/mysql/conf.d/custom.cnf
+      - ./build/mysql-slave/slave.cnf:/etc/mysql/conf.d/slave.cnf
+      - ./build/config/helper:/helper
+      - ./build/mysql-slave/run:/start
+    depends_on:
+      - ${MYSQL_MASTER_CONTAINER_NAME}
+    environment:
+      MYSQL_MASTER_CONTAINER_NAME: ${PROJECT_NAME}_${MYSQL_MASTER_CONTAINER_NAME}
+    command: ["bash", "/start/start-script.sh"]
+  load_balancer:
+    image: nginx:1.17.9-alpine
+    container_name: ${PROJECT_NAME}_${LOAD_BALANCER_CONTAINER_NAME}
+    volumes:
+      - ./build/config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ${MYSQL_SLAVE_SERVICE_NAME}
+    environment:
+      MYSQL_SLAVE_SERVICE_NAME: ${PROJECT_NAME}_${MYSQL_SLAVE_SERVICE_NAME}
+    ports:
+      - "3307:3307"
   tester:
-    container_name: social_tester
+    container_name: ${PROJECT_NAME}_${TEST_SERVICE_NAME}
     build: ./build/tester
-    image: social_tester:master
+    image: ${PROJECT_NAME}_${TEST_SERVICE_NAME}:master
     env_file: .env
     environment:
-      SOCIAL_SITE_CONTAINER_NAME: ${SOCIAL_SITE_CONTAINER_NAME}
-      SOCIAL_SITE_INTERNAL_PORT: ${SOCIAL_SITE_INTERNAL_PORT}
+      MYSQL_MASTER_HOSTNAME: ${PROJECT_NAME}_${MYSQL_MASTER_CONTAINER_NAME}
+      MYSQL_SLAVE_HOSTNAME: ${PROJECT_NAME}_${MYSQL_SLAVE_SERVICE_NAME}
     volumes:
       - ./build/tester/src:/go/src/
+      - ./build/mysql-zabbix/init_sql:/docker-entrypoint-initdb.d
     depends_on:
-      - db-master
+      - mysql_master
+      - mysql_slave
       - web
+  mysql-zabbix:
+    image: mysql:8.0.18
+    container_name: ${PROJECT_NAME}_${ZABBIX_MYSQL_HOST}
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ZABBIX_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${ZABBIX_MYSQL_DATABASE}
+      MYSQL_USER: ${ZABBIX_MYSQL_USER}
+      MYSQL_PASSWORD: ${ZABBIX_MYSQL_PASSWORD}
+    ports:
+      - "3308:${ZABBIX_MYSQL_PORT}"
+    restart: always
+    command: ['mysqld', '--character-set-server=utf8', '--collation-server=utf8_bin', '--default-authentication-plugin=mysql_native_password']
+  zabbix-server:
+    image: zabbix/zabbix-server-mysql:alpine-latest
+    container_name: ${PROJECT_NAME}_${ZABBIX_SERVER_HOST}
+    env_file: .env
+    environment:
+      DB_SERVER_HOST: ${PROJECT_NAME}_${ZABBIX_MYSQL_HOST}
+      MYSQL_DATABASE: ${ZABBIX_MYSQL_DATABASE}
+      MYSQL_USER: ${ZABBIX_MYSQL_USER}
+      MYSQL_PASSWORD: ${ZABBIX_MYSQL_PASSWORD}
+    ports:
+      - '10051:10051'
+    restart: always
+    links:
+      - mysql-zabbix
+    depends_on:
+      - mysql-zabbix
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-mysql:alpine-latest
+    container_name: ${PROJECT_NAME}_${ZABBIX_WEB_HOST}
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ZABBIX_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${ZABBIX_MYSQL_DATABASE}
+      MYSQL_USER: ${ZABBIX_MYSQL_USER}
+      MYSQL_PASSWORD: ${ZABBIX_MYSQL_PASSWORD}
+      ZBX_SERVER_HOST: ${PROJECT_NAME}_${ZABBIX_SERVER_HOST}
+      PHP_TZ: Europe/Moscow
+      DB_SERVER_HOST: ${PROJECT_NAME}_${ZABBIX_MYSQL_HOST}
+      DB_SERVER_PORT: ${ZABBIX_MYSQL_PORT}
+    ports:
+      - "${ZABBIX_WEB_PORT_EXTERNAL}:${ZABBIX_WEB_PORT_INTERNAL}"
+    restart: always
+    volumes:
+      - ./build/config/zabbix:/config
+      - ./build/config/helper:/helper
+      - ./build/zabbix/run:/run
+    links:
+      - zabbix-server
+    depends_on:
+      - zabbix-server
+    command: ["bash", "/run/start-script.sh"]
