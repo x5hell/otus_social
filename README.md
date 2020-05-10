@@ -46,7 +46,7 @@ docker exec -it social_tester sh
 Предварительная настройка в конфиге .env.test
 * SLAVE_INSTANCES - количество запускаемых реплик
 * DB_WORK_MODE - режим работы веб приложения с базой (useReplica/masterOnly - использовать/не использовать реплику)
-* APP_WORK_MODE - режим работы беб приложения (test - в режиме тестирования)
+* APP_WORK_MODE - режим работы веб приложения (test - в режиме тестирования)
 
 Запуск окружения и процесса тестирования:
 ```bash
@@ -55,6 +55,10 @@ docker exec -it social_tester sh
 
 Мониторинг доступен по адресу:
 [http://localhost:8080/screens.php?elementid=59](http://localhost:8080/screens.php?elementid=59 "http://localhost:8080/screens.php?elementid=59")
+
+Логин: Admin
+Пароль: zabbix
+
 
 Просмотр логов о ходе тестирования 
 ```bash
