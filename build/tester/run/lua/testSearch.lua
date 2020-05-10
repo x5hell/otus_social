@@ -63,11 +63,3 @@ request = function()
     randomRequest = math.random(1,1000)
     return requests[randomRequest]
 end
-
-done = function(summary, latency, requests)
-   io.write("------------------------------\n")
-   local handle = io.popen('/run/lua/get_la.sh')
-   local loadAverage = handle:read("*a")
-   handle:close()
-   io.write("Load Average: " .. loadAverage .. "\n")
-end
