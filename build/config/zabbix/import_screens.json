@@ -1,0 +1,16 @@
+{
+  "jsonrpc": "2.0",
+  "method": "configuration.import",
+  "id": 3,
+  "auth": "$api_token",
+  "params": {
+    "format": "xml",
+    "source": "$import_xml",
+    "rules": {
+      "screens": {
+        "createMissing": true,
+        "updateExisting": true
+      }
+    }
+  }
+}

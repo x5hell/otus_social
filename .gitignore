@@ -7,9 +7,15 @@
 
 .env
 .idea
-build/go/pkg
-build/go/src/main
-build/go/src/github.com
+build/web/pkg
+build/web/src/main
+build/web/src/github.com/*
 build/tester/src/main
 build/tester/src/github.com
 build/tester/src/golang.org
+build/mysql-master/master.cnf
+build/mysql-master/init_sql/00_create_replica_account.sql
+build/mysql-slave/slave.cnf
+build/mysql-slave/init_sql/02_set_master_host_fixture.sql
+build/config/nginx/nginx.conf
+build/mysql-zabbix/init-sql/01_alter_zabbix_account.sql

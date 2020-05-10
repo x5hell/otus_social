@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"test/helper"
 	"testing"
 )
@@ -58,15 +59,18 @@ func benchmarkPages(b *testing.B, benchmarkPageFunction func(url string) func (b
 	pagesDataProvider := PagesDataProvider()
 	seedDataParams := helper.GetSeedDataParams()
 
+	masterHostname := os.ExpandEnv("$MYSQL_MASTER_HOSTNAME")
+	slaveHostname := os.ExpandEnv("$MYSQL_SLAVE_HOSTNAME")
+
 	for _, pageTestDataProvider := range pagesDataProvider {
-		helper.RemoveIndexes(seedDataParams)
+		helper.RemoveIndexes(seedDataParams, slaveHostname)
 		seedDataParams.Users = pageTestDataProvider.UsersQuantity
-		helper.ApplyFixture(seedDataParams)
+		helper.ApplyFixture(seedDataParams, masterHostname)
 
 		for _, useIndexPage := range pageTestDataProvider.useIndexPageList {
 
 			if useIndexPage.UseIndex {
-				helper.AddIndexes(seedDataParams)
+				helper.AddIndexes(seedDataParams, slaveHostname)
 			}
 
 			for _, pageUrl := range useIndexPage.PageUrlList {

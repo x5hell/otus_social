@@ -14,15 +14,15 @@ import (
 
 const requestTimeout = 10 * time.Second
 
-func getSocialDomain() string {
+func getSiteDomain() string {
 	return "http://" +
-		os.ExpandEnv("$SOCIAL_SITE_CONTAINER_NAME") +
+		os.ExpandEnv("$WEB_SITE_CONTAINER_NAME") +
 		":" +
-		os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT") + "/"
+		os.ExpandEnv("$WEB_SITE_INTERNAL_PORT") + "/"
 }
 
-func GetSocialIp() string {
-	ipList, err := net.LookupIP(os.ExpandEnv("$SOCIAL_SITE_CONTAINER_NAME"))
+func GetSiteIp() string {
+	ipList, err := net.LookupIP(os.ExpandEnv("$WEB_SITE_CONTAINER_NAME"))
 
 	if err != nil {
 		handler.ErrorLog(err)
@@ -32,12 +32,12 @@ func GetSocialIp() string {
 	return "http://" +
 		ip.String() +
 		":" +
-		os.ExpandEnv("$SOCIAL_SITE_INTERNAL_PORT")
+		os.ExpandEnv("$WEB_SITE_INTERNAL_PORT")
 }
 
 func TestPageSingleThead(url string) error {
 	httpClient := http.Client{Timeout: requestTimeout}
-	fullUrl := getSocialDomain() + url
+	fullUrl := getSiteDomain() + url
 	response, err := httpClient.Get(fullUrl)
 	if err != nil {
 		return err
@@ -58,26 +58,26 @@ func GetSeedDataParams() (seedDataParams generator.SeedDataParams) {
 	return seedDataParams
 }
 
-func ApplyFixture(seedDataParams generator.SeedDataParams) {
+func ApplyFixture(seedDataParams generator.SeedDataParams, hostname string) {
 	err := generator.GenerateFixture(seedDataParams)
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = fixture.Apply(seedDataParams.FixtureGeneratedScript)
+	err = fixture.Apply(seedDataParams.FixtureGeneratedScript, hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func AddIndexes(seedDataParams generator.SeedDataParams) {
-	err := fixture.Apply(seedDataParams.AddIndexScript)
+func AddIndexes(seedDataParams generator.SeedDataParams, hostname string) {
+	err := fixture.Apply(seedDataParams.AddIndexScript, hostname)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func RemoveIndexes(seedDataParams generator.SeedDataParams) {
-	err := fixture.Apply(seedDataParams.RemoveIndexScript)
+func RemoveIndexes(seedDataParams generator.SeedDataParams, hostname string) {
+	err := fixture.Apply(seedDataParams.RemoveIndexScript, hostname)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -40,3 +40,23 @@ docker exec -it social_tester sh
 /go/src/main -action testWithIndex
 ```
 результаты тестирования в /go/src/test/result
+
+## Homework-3
+
+Предварительная настройка в конфиге .env.test
+* SLAVE_INSTANCES - количество запускаемых реплик
+* DB_WORK_MODE - режим работы веб приложения с базой (useReplica/masterOnly - использовать/не использовать реплику)
+* APP_WORK_MODE - режим работы беб приложения (test - в режиме тестирования)
+
+Запуск окружения и процесса тестирования:
+```bash
+./test.sh
+```
+
+Мониторинг доступен по адресу:
+[http://localhost:8080/screens.php?elementid=59](http://localhost:8080/screens.php?elementid=59 "http://localhost:8080/screens.php?elementid=59")
+
+Просмотр логов о ходе тестирования 
+```bash
+docker logs -f social_tester
+```
